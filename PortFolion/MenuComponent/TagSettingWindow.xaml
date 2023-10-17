@@ -1,0 +1,73 @@
+﻿<mah:MetroWindow x:Class="PortFolion.Views.TagSettingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
+        xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
+        xmlns:v="clr-namespace:PortFolion.Views"
+        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        x:Name="TagSetting"
+        mc:Ignorable="d" SaveWindowPosition="True"
+        WindowStartupLocation="CenterScreen"
+        TitleCaps="False" Icon="/Portfolion;component/PortFolion.ico"
+        GlowBrush="{DynamicResource AccentColorBrush}" BorderThickness="1"
+        Title="タグを編集" Height="300" Width="300">
+    <i:Interaction.Triggers>
+        <!--ウィンドウ終了-->
+        <l:InteractionMessageTrigger MessageKey="CloseWindow" Messenger="{Binding Messenger}">
+            <ei:ChangePropertyAction TargetName="TagSetting" PropertyName="DialogResult" Value="true"/>
+        </l:InteractionMessageTrigger>
+        <!--終了時の後処理-->
+        <i:EventTrigger EventName="Closed">
+            <l:DataContextDisposeAction/>
+        </i:EventTrigger>
+        
+        <!--編集開始-->
+        <l:InteractionMessageTrigger MessageKey="EditOrder" Messenger="{Binding Messenger}">
+            <ei:ChangePropertyAction TargetName="EditFlyout" PropertyName="IsOpen" Value="True"/>
+        </l:InteractionMessageTrigger>
+        <!--編集終了-->
+        <l:InteractionMessageTrigger MessageKey="QuitOrder" Messenger="{Binding Messenger}">
+            <ei:ChangePropertyAction TargetName="EditFlyout" PropertyName="IsOpen" Value="False"/>
+        </l:InteractionMessageTrigger>
+
+    </i:Interaction.Triggers>
+    <mah:MetroWindow.Flyouts>
+        <mah:FlyoutsControl>
+            <mah:Flyout x:Name="EditFlyout" Header="タグの編集" AnimateOpacity="True"
+                        Position="Right" IsModal="False"
+                        CloseCommand="{Binding EdittingItem.CancelCmd}">
+                <v:TagSettingFlyout DataContext="{Binding EdittingItem}"/>
+            </mah:Flyout>
+        </mah:FlyoutsControl>
+    </mah:MetroWindow.Flyouts>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="使用されているタグ一覧" Margin="5,5,5,2"/>
+        <ListBox Grid.Row="1" ItemsSource="{Binding Tags}" Margin="5,0">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding NewTagName}"/>
+                        <Button Command="{Binding EditCmd}" ToolTip="編集" Width="22" Height="22" Margin="3,0"
+                                Style="{DynamicResource MahApps.Metro.Styles.MetroCircleButtonStyle}">
+                            <iconPacks:PackIconMaterial Width="12" Height="12"
+                                                        Kind="Pencil"/>
+                        </Button>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,5,0">
+            <Button Content="キャンセル" Command="{Binding CancelCmd}" Margin="0,3,5,3"/>
+            <Button Content="　O K　" Command="{Binding ExecuteCmd}" Margin="0,3,5,3"/>
+        </StackPanel>
+    </Grid>
+</mah:MetroWindow>

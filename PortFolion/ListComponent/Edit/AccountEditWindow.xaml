@@ -1,0 +1,429 @@
+﻿<mah:MetroWindow x:Class="PortFolion.Views.AccountEditWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+                 xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
+                 xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
+                 xmlns:v="clr-namespace:PortFolion.Views"
+                 xmlns:vm="clr-namespace:PortFolion.ViewModels"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:converter="clr-namespace:PortFolion.Views.Converter"
+                 xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                 xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                 x:Name="editWindow"
+                 mc:Ignorable="d" SaveWindowPosition="True"
+                 GlowBrush="{DynamicResource AccentColorBrush}" BorderThickness="1"
+                 TitleCaps="False"
+                 Icon="/Portfolion;component/PortFolion.ico"
+                 Title="{Binding Name, StringFormat={}{0} - AccountEdit}" Height="500" Width="850">
+    
+    <!--<Window.DataContext>
+        <vm:AccountEditWindowViewModel/>
+    </Window.DataContext>-->
+    
+    <!--<mah:MetroWindow.CommandBindings>
+        <CommandBinding Command="OpenFlyoutCommand" Executed="CommandBinding_Executed"/>
+    </mah:MetroWindow.CommandBindings>-->
+
+     <i:Interaction.Triggers>
+     
+     	<!--Viewに特別な要件が存在しない限りは、トリガーやアクションの自作にこだわらず積極的にコードビハインドを使いましょう -->
+    	<!--Viewのコードビハインドは、基本的にView内で完結するロジックとViewModelからのイベントの受信(専用リスナを使用する)に限るとトラブルが少なくなります -->
+    	<!--Livet1.1からはコードビハインドでViewModelのイベントを受信するためのWeakEventLisnterサポートが追加されています --> 
+        
+        <!--WindowのContentRenderedイベントのタイミングでViewModelのInitializeメソッドが呼ばれます-->
+        <!--<i:EventTrigger EventName="ContentRendered">
+            <l:LivetCallMethodAction MethodTarget="{Binding}" MethodName="Initialize"/>
+        </i:EventTrigger>-->
+
+        <!--Windowが閉じたタイミングでViewModelのDisposeメソッドが呼ばれます-->
+        <i:EventTrigger EventName="Closed">
+            <l:DataContextDisposeAction/>
+        </i:EventTrigger>
+
+        <!--WindowのCloseキャンセル処理に対応する場合は、WindowCloseCancelBehaviorの使用を検討してください-->
+        
+         <!--名前変更-->
+        <l:InteractionMessageTrigger MessageKey="EditNodeName" Messenger="{Binding Messenger}">
+            <ei:ChangePropertyAction TargetName="NameEditFlyout" PropertyName="IsOpen" Value="true"/>
+        </l:InteractionMessageTrigger>
+        <l:InteractionMessageTrigger MessageKey="EditEndNodeName" Messenger="{Binding Messenger}">
+            <ei:ChangePropertyAction TargetName="NameEditFlyout" PropertyName="IsOpen" Value="false"/>
+        </l:InteractionMessageTrigger>
+         
+        <!--タグ変更-->
+        <l:InteractionMessageTrigger MessageKey="EditNodeTag" Messenger="{Binding Messenger}">
+            <ei:ChangePropertyAction TargetName="TagEditFlyout" PropertyName="IsOpen" Value="true"/>
+        </l:InteractionMessageTrigger>
+        <l:InteractionMessageTrigger MessageKey="EditEndNodeTag" Messenger="{Binding Messenger}">
+            <ei:ChangePropertyAction TargetName="TagEditFlyout" PropertyName="IsOpen" Value="false"/>
+        </l:InteractionMessageTrigger>
+         
+        <!--ウィンドウ終了-->
+        <l:InteractionMessageTrigger MessageKey="CloseAsTrue" Messenger="{Binding Messenger}">
+            <ei:ChangePropertyAction TargetName="editWindow" PropertyName="DialogResult" Value="true"/>
+        </l:InteractionMessageTrigger>
+         
+        <!--<l:InteractionMessageTrigger MessageKey="CloseAsFalse" Messenger="{Binding Messenger}">
+            <ei:ChangePropertyAction TargetName="{Binding ElementName=editWindow}" PropertyName="DialogResult" Value="false"/>
+        </l:InteractionMessageTrigger>-->
+
+    </i:Interaction.Triggers>
+    <mah:MetroWindow.Flyouts>
+        <mah:FlyoutsControl>
+            <mah:Flyout x:Name="NameEditFlyout" IsModal="True" Header="名前の変更"
+                        Position="Right" AnimateOpacity="True"
+                        CloseCommand="{Binding NodeNameEditer.CancelCmd}">
+                <StackPanel Orientation="Vertical" Margin="5">
+                    <TextBlock Text="名前を変更します" FontSize="20" Margin="0,3"/>
+                    <TextBlock Text="{Binding NodeNameEditer.PresentName,StringFormat=変更前 : {0}}" Margin="0,3"/>
+                    <TextBox  Text="{Binding NodeNameEditer.Name,UpdateSourceTrigger=PropertyChanged}" Margin="0.3"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,3">
+                        <Button Content="キャンセル" Command="{Binding NodeNameEditer.CancelCmd}" HorizontalAlignment="Right" Margin="3,0"/>
+                        <Button Content="　O K　" Command="{Binding NodeNameEditer.ExecuteCmd}" HorizontalAlignment="Right" Margin="3,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </mah:Flyout>
+            <mah:Flyout x:Name="TagEditFlyout" IsModal="True" Header="タグの変更"
+                        Position="Right" AnimateOpacity="True"
+                        CloseCommand="{Binding TagNameEditer.CancelCmd}">
+                <v:TagEditFlyout DataContext="{Binding NodeTagEditer}"/>
+            </mah:Flyout>
+        </mah:FlyoutsControl>
+    </mah:MetroWindow.Flyouts>
+    <mah:MetroWindow.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+        <DataTemplate x:Key="LoadingTemplate">
+            <Grid>
+                <!--<Grid Panel.ZIndex="2" Grid.Column="1" Background="Black" Opacity="0.2"/>-->
+                <Grid Background="DarkGray" Opacity="0.1"/>
+                <mah:ProgressRing Panel.ZIndex="3" Grid.Column="1" IsActive="True"/>
+            </Grid>
+        </DataTemplate>
+    </mah:MetroWindow.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <ContentControl d:IsHidden="true"  Panel.ZIndex="1" Grid.Column="0" Grid.ColumnSpan="2" Grid.RowSpan="5"
+                        Content="{Binding}" ContentTemplate="{StaticResource LoadingTemplate}"
+                        Visibility="{Binding IsLoading,Converter={StaticResource BoolToVisibility},Mode=OneWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
+            <TextBlock Text="{Binding CurrentDate, StringFormat=yyyy年 M月 d日 (ddd)}" FontSize="40"/>
+        </StackPanel>
+        <WrapPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center">
+            <StackPanel Orientation="Horizontal" Margin="0,0,30,0">
+            <StackPanel Orientation="Horizontal" Margin="0,0,30,0"><!--StringFormat=”{0} :”-->
+                <TextBlock Text="{Binding CashElement.Name, StringFormat={}{0} :}" Margin="5" FontSize="15" VerticalAlignment="Bottom"/>
+                    <TextBox Text="{Binding CashElement.Amount,UpdateSourceTrigger=PropertyChanged}" Margin="5,1,1,1" FontSize="25" VerticalAlignment="Bottom" MinWidth="140"
+                         InputMethod.PreferredImeState="On"
+                         InputMethod.PreferredImeConversionMode="Alphanumeric"
+                         mah:TextBoxHelper.Watermark="数値または式">
+                        <TextBox.ToolTip>
+                            <ToolTip Content="{Binding CashElement.Name}"
+                                     ContentStringFormat="{}記入日時点での{0}" />
+                        </TextBox.ToolTip>
+                    </TextBox>
+                </StackPanel>
+                <TextBlock Text="内、当日(+)入・(-)出金額 :" Margin="5" FontSize="12" VerticalAlignment="Bottom"/>
+                <TextBox Text="{Binding CashElement.InvestmentValue,UpdateSourceTrigger=PropertyChanged}" Margin="5,1,1,1" FontSize="25" VerticalAlignment="Bottom" MinWidth="140"
+                         ToolTip="前回記入日から今回までの間の入出金額"
+                         InputMethod.PreferredImeState="On"
+                         InputMethod.PreferredImeConversionMode="Alphanumeric"
+                         mah:TextBoxHelper.Watermark="数値または式"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="総評価額 :" Margin="5" FontSize="15" VerticalAlignment="Bottom"/>
+                <TextBlock Text="{Binding TemporaryAmount}" Margin="10,1,1,1" FontSize="25" VerticalAlignment="Bottom"/>
+            </StackPanel>
+        </WrapPanel>
+        <Grid Grid.Row="2" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+            <Button Margin="5,10,5,0" Command="{Binding ApplyCurrentPerPrice}">
+                <Button.ContentTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconMaterial Kind="Refresh" VerticalAlignment="Center"/>
+                            <TextBlock Text="株価更新" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </Button.ContentTemplate>
+            </Button>
+        </Grid>
+        <DataGrid Grid.Row="3" Grid.Column="1" ItemsSource="{Binding Elements}" AutoGenerateColumns="False">
+            <DataGrid.Resources>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="銘柄" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                                <TextBlock Text="(タグ)" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.HeaderTemplate>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding Code}" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding Name}" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding Tag,StringFormat=({0})}" FontSize="10" Margin="3,0,0,0" VerticalAlignment="Center"/>
+
+                                <mah:DropDownButton VerticalContentAlignment="Center"
+                                                Width="auto" Margin="3,0,0,0"
+                                                Content="" ItemsSource="{Binding MenuList}" >
+                                    <mah:DropDownButton.ItemContainerStyle>
+                                        <Style TargetType="MenuItem">
+                                            <Setter Property="Header" Value="{Binding Header}"/>
+                                            <Setter Property="Command" Value="{Binding MenuCommand}"/>
+                                        </Style>
+                                    </mah:DropDownButton.ItemContainerStyle>
+                                </mah:DropDownButton>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn Header="現在単価" CanUserSort="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding CurrentPerPriceView}" HorizontalAlignment="Right"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <TextBox Visibility="{Binding IsPerPriceEditable, Converter={StaticResource BoolToVisibility}}"
+                                     Text="{Binding CurrentPerPrice,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn CanUserSort="False">
+                    <DataGridTemplateColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <TextBlock Text="取引数量" HorizontalAlignment="Center"/>
+                                <TextBlock Text="(+)買付 / (-)売却" FontSize="8" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.HeaderTemplate>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding TradeQuantityView}" HorizontalAlignment="Right"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <TextBox Visibility="{Binding IsTradeQuantityEditable,Converter={StaticResource BoolToVisibility}}" 
+                                     Text="{Binding TradeQuantity,UpdateSourceTrigger=PropertyChanged}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn CanUserSort="False">
+                    <DataGridTemplateColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="取引額" HorizontalAlignment="Center"/>
+                                <TextBlock Text="(+)買付・入金" FontSize="8" HorizontalAlignment="Center"/>
+                                <TextBlock Text="(-)売却・出金" FontSize="8" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.HeaderTemplate>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding InvestmentValueView}" HorizontalAlignment="Right"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding InvestmentValue,UpdateSourceTrigger=PropertyChanged}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn Header="保有数量" CanUserSort="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding QuantityView}" HorizontalAlignment="Right"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <TextBox Visibility="{Binding IsQuantityEditable,Converter={StaticResource BoolToVisibility}}"
+                                     Text="{Binding Quantity,UpdateSourceTrigger=PropertyChanged}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn Header="時価評価額" CanUserSort="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding AmountView}" HorizontalAlignment="Right"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding Amount,UpdateSourceTrigger=PropertyChanged}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+
+
+            </DataGrid.Columns>
+        </DataGrid>
+        <Expander IsExpanded="True" Margin="5,5,10,5" Grid.Row="2" Grid.RowSpan="3" Grid.Column="0" ExpandDirection="Right" mah:ControlsHelper.ContentCharacterCasing="Normal">
+            <Expander.Header>
+                <TextBlock Text="New Addition" TextAlignment="Left">
+                    <TextBlock.LayoutTransform>
+                        <RotateTransform Angle="90"/>
+                    </TextBlock.LayoutTransform>
+                </TextBlock>
+            </Expander.Header>
+            <Expander.Resources>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.AnimatedTabControl.xaml" />
+            </Expander.Resources>
+            <TabControl mah:TabControlHelper.IsUnderlined="True">
+                <TabControl.Resources>
+                    <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                        <Setter Property="Margin" Value="0,1"/>
+                    </Style>
+                </TabControl.Resources>
+                <TabItem Header="株式">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="110"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="証券コード : " HorizontalAlignment="Right" VerticalAlignment="Center" />
+                        <TextBox Grid.Row="0" Grid.Column="1" 
+                                 Style="{DynamicResource SearchMetroTextBox}"
+                                 Text="{Binding DummyStock.Code, UpdateSourceTrigger=PropertyChanged}"
+                                 InputMethod.PreferredImeState="On"
+                                 InputMethod.PreferredImeConversionMode="Alphanumeric"
+                                 mah:TextBoxHelper.SelectAllOnFocus="True"
+                                 mah:TextBoxHelper.ButtonCommand="{Binding DummyStock.ApplySymbol}"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="銘柄名 : " HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" 
+                                 Text="{Binding DummyStock.Name,UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="取引数量 : " HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding DummyStock.TradeQuantity,UpdateSourceTrigger=PropertyChanged}"
+                                 InputMethod.PreferredImeState="On"
+                                 InputMethod.PreferredImeConversionMode="Alphanumeric"
+                                 mah:TextBoxHelper.Watermark="数値または式"
+                                 mah:TextBoxHelper.SelectAllOnFocus="True"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="取引額 : " HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding DummyStock.InvestmentValue,UpdateSourceTrigger=PropertyChanged}"
+                                 InputMethod.PreferredImeState="On"
+                                 InputMethod.PreferredImeConversionMode="Alphanumeric"
+                                 mah:TextBoxHelper.Watermark="数値または式"
+                                 mah:TextBoxHelper.SelectAllOnFocus="True"/>
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="現在単価 : " HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding DummyStock.CurrentPerPrice,UpdateSourceTrigger=PropertyChanged}"
+                                 InputMethod.PreferredImeState="On"
+                                 InputMethod.PreferredImeConversionMode="Alphanumeric"
+                                 mah:TextBoxHelper.Watermark="数値または式"
+                                 mah:TextBoxHelper.SelectAllOnFocus="True"/>
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="時価評価額 : " HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding DummyStock.Amount,UpdateSourceTrigger=PropertyChanged}"
+                                 InputMethod.PreferredImeState="On"
+                                 InputMethod.PreferredImeConversionMode="Alphanumeric"
+                                 mah:TextBoxHelper.Watermark="数値または式"
+                                 mah:TextBoxHelper.SelectAllOnFocus="True"/>
+                        <StackPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="クリア" Margin="5,5,5,1" Command="{Binding ClearNewStockParams}"/>
+                            <Button Content="追加" Margin="5,5,1,1" Command="{Binding AddStock}"/>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="投信・債権">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="110"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="銘柄・ファンド名 : " HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="0" Grid.Column="1"
+                                 Text="{Binding DummyProduct.Name,UpdateSourceTrigger=PropertyChanged}"
+                                 mah:TextBoxHelper.SelectAllOnFocus="True"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="取引数量 : " HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding DummyProduct.Quantity,UpdateSourceTrigger=PropertyChanged}"
+                                 InputMethod.PreferredImeState="On"
+                                 InputMethod.PreferredImeConversionMode="Alphanumeric"
+                                 mah:TextBoxHelper.SelectAllOnFocus="True"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="取引額 : " HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding DummyProduct.InvestmentValue,UpdateSourceTrigger=PropertyChanged}"
+                                 InputMethod.PreferredImeState="On"
+                                 InputMethod.PreferredImeConversionMode="Alphanumeric"
+                                 mah:TextBoxHelper.SelectAllOnFocus="True"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="現在単価 : " HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding DummyProduct.CurrentPerPrice,UpdateSourceTrigger=PropertyChanged}"
+                                 InputMethod.PreferredImeState="On"
+                                 InputMethod.PreferredImeConversionMode="Alphanumeric"
+                                 mah:TextBoxHelper.SelectAllOnFocus="True"/>
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="時価評価額 : " HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding DummyProduct.Amount,UpdateSourceTrigger=PropertyChanged}"
+                                 InputMethod.PreferredImeState="On"
+                                 InputMethod.PreferredImeConversionMode="Alphanumeric"
+                                 mah:TextBoxHelper.SelectAllOnFocus="True"/>
+                        <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="クリア" Margin="5,5,5,1" Command="{Binding ClearNewProductParams}"/>
+                            <Button Content="追加" Margin="5,5,1,1" Command="{Binding AddProduct}"/>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Expander>
+        <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="リセット" Command="{Binding Reset}" Margin="5,3"/>
+            <Button Content="キャンセル" Margin="5,3">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Click">
+                        <ei:ChangePropertyAction TargetName="editWindow" PropertyName="DialogResult" Value="false"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Button>
+            <Button Content="完了" Command="{Binding Apply}" Margin="5,3"/>
+        </StackPanel>
+        <StatusBar Grid.Row="5" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
+            <StatusBarItem Height="25">
+                <StatusBarItem.Resources>
+                    <converter:StringToTextBlockConverter x:Key="CommentConv"/>
+                </StatusBarItem.Resources>
+                <!--<TextBlock Text="{Binding StatusComment}"/>-->
+                <mah:TransitioningContentControl Transition="Left"
+                                                 Content="{Binding StatusComment,Converter={StaticResource CommentConv}}">
+                </mah:TransitioningContentControl>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</mah:MetroWindow>

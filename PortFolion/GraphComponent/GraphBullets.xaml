@@ -1,0 +1,304 @@
+﻿<UserControl x:Class="PortFolion.Views.GraphBullets"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PortFolion.Views"
+             xmlns:selector="clr-namespace:PortFolion.Views.Selector"
+             xmlns:vm ="clr-namespace:PortFolion.ViewModels"
+             xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
+             xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:cnv="clr-namespace:PortFolion.Views.Converter"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+
+    <GroupBox Margin="0">
+        <GroupBox.Resources>
+            <!--<selector:GraphTemplateSelector x:Key="GraphTemplateSelector"/>-->
+            <selector:ChartTemplateSelector x:Key="ChartTemplateSelector"/>
+            <!--<selector:MenuTemplateSelector x:Key="MenuTemplateSelector"/>-->
+            <ObjectDataProvider x:Key="BalanceCFKey" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+                <ObjectDataProvider.MethodParameters>
+                     <x:Type TypeName="vm:BalanceCashFlow"/>
+                </ObjectDataProvider.MethodParameters>
+            </ObjectDataProvider>
+            <cnv:BalanceCFToStringConverter x:Key="BalanceCFConv"/>
+            
+            <BooleanToVisibilityConverter x:Key="BoolToVisibilityConv"/>
+
+            <DataTemplate x:Key="GraphLegends">
+                <ItemsControl ItemsSource="{Binding Legends}" VerticalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,5,0">
+                                <Path Width="15" Height="15" Stretch="Fill"
+                                      StrokeThickness="{Binding StrokeThickness}" Fill="{Binding Fill}"
+                                      Stroke="{Binding Stroke}" Data="{Binding PointGeometry}"/>
+                                <TextBlock Text="{Binding Title}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </DataTemplate>
+
+            <DataTemplate x:Key="LogChartTemplate">
+                <StackPanel Orientation="Vertical">
+                    <lvc:CartesianChart x:Name="TransGraph" Series="{Binding SeriesList}"
+                                        LegendLocation="None" MinHeight="230" Zoom="None">
+                        <lvc:CartesianChart.DataTooltip>
+                            <lvc:DefaultTooltip Background="Black" Opacity="0.7"/>
+                        </lvc:CartesianChart.DataTooltip>
+                        <lvc:CartesianChart.AxisX>
+                            <lvc:Axis x:Name="GraphXAxis" MinRange="2" Labels="{Binding Labels}" Position="LeftBottom"
+                                      MinValue="{Binding DisplayMinValue,Mode=OneWay}"
+                                      MaxValue="{Binding DisplayMaxValue,Mode=OneWay}">
+                                <lvc:Axis.Separator>
+                                    <lvc:Separator StrokeThickness="1" StrokeDashArray="2"/>
+                                </lvc:Axis.Separator>
+                            </lvc:Axis>
+                        </lvc:CartesianChart.AxisX>
+                        <lvc:CartesianChart.AxisY>
+                            <lvc:LogarithmicAxis Base="10" LabelFormatter="{Binding YFormatter}" Position="RightTop">
+                                <lvc:LogarithmicAxis.Separator>
+                                    <lvc:Separator  StrokeThickness="1" StrokeDashArray="2"/>
+                                </lvc:LogarithmicAxis.Separator>
+                            </lvc:LogarithmicAxis>
+                        </lvc:CartesianChart.AxisY>
+                    </lvc:CartesianChart>
+                    <mah:RangeSlider x:Name="RangeSlider" Minimum="0" Margin="25,0,25,2"
+                                     Maximum="{Binding MaxLimit,Mode=OneWay}" 
+                                     MinRange="1"
+                                     LowerValue="{Binding DisplayMinValue,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}"
+                                     UpperValue="{Binding DisplayMaxValue,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}"
+                                     AutoToolTipPlacement="TopLeft" IsSnapToTickEnabled="True" IsMoveToPointEnabled="True" SmallChange="1"/>
+                </StackPanel>
+                            
+            </DataTemplate>
+            <DataTemplate x:Key="NormalChartTemplate">
+                <StackPanel Orientation="Vertical">
+                    <lvc:CartesianChart x:Name="TransGraph" Series="{Binding SeriesList}"
+                                        LegendLocation="None" MinHeight="230" Zoom="None">
+                        <lvc:CartesianChart.DataTooltip>
+                            <lvc:DefaultTooltip Background="Black" Opacity="0.7"/>
+                        </lvc:CartesianChart.DataTooltip>
+                        <lvc:CartesianChart.AxisX>
+                            <lvc:Axis x:Name="GraphXAxis" MinRange="2" Labels="{Binding Labels}" Position="LeftBottom"
+                                      MinValue="{Binding DisplayMinValue,Mode=OneWay}"
+                                      MaxValue="{Binding DisplayMaxValue,Mode=OneWay}">
+                                <lvc:Axis.Separator>
+                                    <lvc:Separator StrokeThickness="1" StrokeDashArray="2"/>
+                                </lvc:Axis.Separator>
+                            </lvc:Axis>
+                        </lvc:CartesianChart.AxisX>
+                        <lvc:CartesianChart.AxisY>
+                            <lvc:Axis LabelFormatter="{Binding YFormatter}" Position="RightTop">
+                                <lvc:Axis.Separator>
+                                    <lvc:Separator StrokeThickness="1" StrokeDashArray="2"/>
+                                </lvc:Axis.Separator>
+                            </lvc:Axis>
+                        </lvc:CartesianChart.AxisY>
+                    </lvc:CartesianChart>
+                    <mah:RangeSlider x:Name="RangeSlider" Minimum="0" Margin="25,0,25,2"
+                                     Maximum="{Binding MaxLimit,Mode=OneWay}" 
+                                     MinRange="1"
+                                     LowerValue="{Binding DisplayMinValue,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}"
+                                     UpperValue="{Binding DisplayMaxValue,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}"
+                                     AutoToolTipPlacement="TopLeft" IsSnapToTickEnabled="True" IsMoveToPointEnabled="True" SmallChange="1"/>
+                </StackPanel>
+            </DataTemplate>
+
+            <DataTemplate x:Key="BalanceChartTemplate">
+                <mah:SplitView x:Name="Pane" IsPaneOpen="{Binding IsMenuOpen,Mode=TwoWay}" OpenPaneLength="130" PanePlacement="Left" DisplayMode="Overlay" 
+                               PaneBackground="Transparent">
+                    <mah:SplitView.Pane>
+                        <DockPanel  Background="{StaticResource {x:Static SystemColors.DesktopBrushKey}}" Opacity="0.8">
+                            <StackPanel DockPanel.Dock="Top" Orientation="Vertical">
+                                <CheckBox Content="対数軸" IsChecked="{Binding IsLogChart}" Margin="5">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Checked">
+                                            <ei:ChangePropertyAction TargetName="Normalc"
+                                                                        PropertyName="Visibility"
+                                                                        Value="Collapsed"/>
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="Checked">
+                                            <ei:ChangePropertyAction TargetName="Logc"
+                                                                        PropertyName="Visibility"
+                                                                        Value="Visible"/>
+                                        </i:EventTrigger>
+
+                                        <i:EventTrigger EventName="Uncheked">
+                                            <ei:ChangePropertyAction TargetName="Normalc"
+                                                                        PropertyName="Visibility"
+                                                                        Value="Visible"/>
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="Uncheked">
+                                            <ei:ChangePropertyAction TargetName="Logc"
+                                                                        PropertyName="Visibility"
+                                                                        Value="Collapsed"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </CheckBox>
+                                <CheckBox Content="損益表示" IsChecked="{Binding VisiblePL}" Margin="5"/>
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Text="キャッシュフロー :" HorizontalAlignment="Left" Margin="3,0"/>
+                                    <ComboBox ItemsSource="{Binding Source={StaticResource BalanceCFKey}}" SelectedValue="{Binding CashFlowDrawPattern}" HorizontalAlignment="Right" Margin="3,0">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Converter={StaticResource BalanceCFConv}}"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </StackPanel>
+                            </StackPanel>
+                        </DockPanel>
+                    </mah:SplitView.Pane>
+                    <StackPanel Orientation="Vertical">
+                        <ContentControl x:Name="Normalc" Visibility="Visible" ContentTemplate="{StaticResource NormalChartTemplate}" Content="{Binding}"/>
+                        <ContentControl x:Name="Logc" Visibility="Collapsed" ContentTemplate="{StaticResource LogChartTemplate}" Content="{Binding}"/>
+                    </StackPanel>
+                </mah:SplitView>
+            </DataTemplate>
+
+            <DataTemplate x:Key="IndexChartTemplate">
+                <mah:SplitView IsPaneOpen="{Binding IsMenuOpen,Mode=TwoWay}" OpenPaneLength="100" PanePlacement="Left" DisplayMode="Overlay"
+                               PaneBackground="Transparent">
+                    <mah:SplitView.Pane>
+                        <StackPanel Orientation="Vertical" Background="{StaticResource {x:Static SystemColors.DesktopBrushKey}}" Opacity="0.8">
+                            <CheckBox Content="対数軸" IsChecked="{Binding IsLogChart}" Margin="5">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Checked">
+                                            <ei:ChangePropertyAction TargetName="Normalc"
+                                                                        PropertyName="Visibility"
+                                                                        Value="Collapsed"/>
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="Checked">
+                                            <ei:ChangePropertyAction TargetName="Logc"
+                                                                        PropertyName="Visibility"
+                                                                        Value="Visible"/>
+                                        </i:EventTrigger>
+
+                                        <i:EventTrigger EventName="Uncheked">
+                                            <ei:ChangePropertyAction TargetName="Normalc"
+                                                                        PropertyName="Visibility"
+                                                                        Value="Visible"/>
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="Uncheked">
+                                            <ei:ChangePropertyAction TargetName="Logc"
+                                                                        PropertyName="Visibility"
+                                                                        Value="Collapsed"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </CheckBox>
+                        </StackPanel>
+                    </mah:SplitView.Pane>
+                    <StackPanel Orientation="Vertical">
+                        <ContentControl x:Name="Normalc" Visibility="Visible" ContentTemplate="{StaticResource NormalChartTemplate}" Content="{Binding}"/>
+                        <ContentControl x:Name="Logc" Visibility="Collapsed" ContentTemplate="{StaticResource LogChartTemplate}" Content="{Binding}"/>
+                    </StackPanel>
+                </mah:SplitView>
+            </DataTemplate>
+
+            <DataTemplate x:Key="WeightChartTemplate"></DataTemplate>
+            
+            <DataTemplate x:Key="GraphTemplate" DataType="{x:Type vm:GraphVmBase}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <DockPanel HorizontalAlignment="Stretch" Grid.Row="0">
+                        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Left">
+                            <Button Content="{iconPacks:PackIconMaterial Kind=ArrowUp,Width=10,Height=10}"
+                                    IsEnabled="{Binding IndexUpCommand.CanExecute}" ToolTip="上へ移動" VerticalAlignment="Top">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Click">
+                                        <i:InvokeCommandAction Command="{Binding IndexUpCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Button>
+                            <Button Content="{iconPacks:PackIconMaterial Kind=ArrowDown,Width=10,Height=10}"
+                                    IsEnabled="{Binding IndexDownCommand.CanExecute}" ToolTip="下へ移動" VerticalAlignment="Top">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Click">
+                                        <i:InvokeCommandAction Command="{Binding IndexDownCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Button>
+                            <ToggleButton Content="{iconPacks:PackIconMaterial Kind=Settings,Width=10,Height=10}"
+                                          Visibility="{Binding VisibilityMenu,Converter={StaticResource BoolToVisibilityConv}}"
+                                          IsChecked="{Binding IsMenuOpen,Mode=TwoWay}" Margin="5,0,0,0" ToolTip="表示設定" VerticalAlignment="Top">
+                            </ToggleButton>
+                        </StackPanel>
+
+                        <Button DockPanel.Dock="Right"
+                                Content="{iconPacks:PackIconMaterial Kind=Close,Width= 10,Height=10}" ToolTip="閉じる" VerticalAlignment="Top">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <ei:CallMethodAction TargetObject="{Binding}" MethodName="Dispose"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
+                        <ContentControl ContentTemplate="{StaticResource GraphLegends}" Content="{Binding}" HorizontalAlignment="Center"/>
+                    </DockPanel>
+                    <ContentControl Grid.Row="1" Content="{Binding}"
+                                    ContentTemplateSelector="{StaticResource ChartTemplateSelector}"/>
+                </Grid>
+            </DataTemplate>
+
+        </GroupBox.Resources>
+        <GroupBox.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="推 移" HorizontalAlignment="Center"/>
+                <ToggleButton x:Name="menu" IsChecked="True" Grid.Column="1"  HorizontalAlignment="Right" Background="Transparent"
+                              Style="{StaticResource MetroFlatToggleButton}"
+                              Content="{iconPacks:PackIconMaterial Kind=Menu,Height=10}"/>
+            </Grid>
+        </GroupBox.Header>
+        <mah:SplitView Margin="-5" DisplayMode="Overlay" PanePlacement="Right" OpenPaneLength="120"
+                       IsPaneOpen="{Binding IsChecked,ElementName=menu,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+            <mah:SplitView.Pane>
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Orientation="Vertical" x:Name="menuItems">
+                        
+                        <ToggleButton Content="残高/CF/PL" Margin="0,2" IsChecked="{Binding VisibleBalance}" Style="{StaticResource MetroFlatToggleButton}"/>
+                        <ToggleButton Content="基準価額" Margin="0,2" IsChecked="{Binding VisibleIndex}" Style="{StaticResource MetroFlatToggleButton}"/>
+                        <ToggleButton Content="収益率" Margin="0,2" IsChecked="{Binding VisibleVolatility}" Style="{StaticResource MetroFlatToggleButton}"/>
+                        <ToggleButton Content="内訳推移" Margin="0,2" Style="{StaticResource MetroFlatToggleButton}" Visibility="Hidden"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </mah:SplitView.Pane>
+            <ScrollViewer x:Name="viewer" Grid.Column="0" Margin="0" VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Graphs}" 
+                              Width="{Binding Width,ElementName=viewer}" >
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="1,1,3,1" BorderThickness="1" BorderBrush="{StaticResource {x:Static SystemColors.HighlightBrushKey}}" >
+                                <ContentControl ContentTemplate="{StaticResource GraphTemplate}" 
+                                                Content="{Binding}"/>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </mah:SplitView>
+    </GroupBox>
+</UserControl>
