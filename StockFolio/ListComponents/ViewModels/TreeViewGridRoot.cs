@@ -59,7 +59,6 @@ namespace StockFolio.ViewModels {
 	}
 	public class EditableBasket : TreeViewNode {
 		public EditableBasket(CommonNode model):base(model) {
-			this.Editer = GenerateEditer();
 			Disposable.Create(() => this.Editer?.Dispose()).AddTo(Disposables);
 			this.Name = model.ObserveProperty(x => x.Name).ToReadOnlyReactiveProperty<string>().AddTo(Disposables);
 			this.Amount = model.ObserveProperty(x=>x.Amount).ToReadOnlyReactiveProperty().AddTo(Disposables);
@@ -67,7 +66,17 @@ namespace StockFolio.ViewModels {
 		protected virtual ElementEditer GenerateEditer() {
 			return new BasketEditer(Model);
 		}
-		public ElementEditer Editer { get; private set; }
+		protected virtual List<object> GenerateEditerGridItems() {
+			return new List<object>() { 
+				new ReadOnlyGridElements(Model).AddTo(Disposables), 
+				Editer,
+				new ReadOnlyGridElements(Editer).AddTo(Disposables)
+			};
+		}
+		ElementEditer? _editer;
+		public ElementEditer Editer { get => _editer ??= GenerateEditer(); }
+		List<object>? edititems;
+		public List<object> EditerGridItems { get => edititems ??= this.GenerateEditerGridItems(); }
 		public ReadOnlyReactiveProperty<string> Name { get; }
 		public ReadOnlyReactiveProperty<long> Amount { get; }
 		
@@ -81,6 +90,7 @@ namespace StockFolio.ViewModels {
 			return new CashPositionEditer(Model);
 		}
 		public ReadOnlyReactiveProperty<long> InvestmentValue { get; }
+		public virtual List<object>? CashEditerGridItems { get => this.EditerGridItems; }
 	}
 	public class EditablePosition : EditableCashPosition {
 		public EditablePosition(FinancialProduct model):base(model) {
@@ -99,7 +109,22 @@ namespace StockFolio.ViewModels {
 		public ReadOnlyReactiveProperty<long> Quantity { get; }
 		public ElementEditer? CashPositionEditer { get {
 				return (this.Siblings().Where(a => a.Model is CashValue).FirstOrDefault() as EditableCashPosition)?.Editer;
-			} }
+			}
+		}
+		List<object>? cashEditerGridItems;
+		public override List<object>? CashEditerGridItems {
+			get {
+				if(cashEditerGridItems != null) return cashEditerGridItems;
+				var editer = CashPositionEditer;
+				if (editer == null) return null;
+				cashEditerGridItems = new List<object>() {
+					new ReadOnlyGridElements(editer.ModelNode).AddTo(Disposables),
+					editer,
+					new ReadOnlyGridElements(editer).AddTo(Disposables),
+				};
+				return cashEditerGridItems;
+            }
+		}
 	}
     public class TreeViewGridRoot : TreeViewNode {
 		private ObservableDictionary<CommonNode, TreeViewNode> _buffDic { get; }

@@ -118,7 +118,7 @@ namespace PortFolion.Core {
 		public override long Amount => _cushion.Amount;
 
 		public override CommonNode Clone() {
-			throw new NotImplementedException();
+			return new AnonymousNode();
 		}
 		public override NodeType GetNodeType() {
 			return NodeType.Unknown;

@@ -19,11 +19,19 @@ namespace StockFolio.ViewModels {
 			this.Name.ObserveHasErrors.Subscribe(hasErr => this.ErrorChanged(hasErr, nameof(this.Name)));
 			this.OrderReserver.Add(new EditPresenter<string>(nameof(Name), () => this.Name.Value , () => node.Name, x => node.ChangeName(x)));
 			this.Name.Subscribe(_ => this.CheckChangedProperty(nameof(Name)));
+
+			this.ModelName = node.ObserveProperty(x => x.Name)
+				.ToReadOnlyReactiveProperty<string>()
+				.AddTo(Disposables);
 		}
 		public ReactiveProperty<string> Name { get;}
+		public ReadOnlyReactiveProperty<string> ModelName { get; }
 		public override void Reset() {
 			this.Name.Value = Model.Name;
 		}
+		public bool IsEnabled => true;
+		public bool IsReadOnly => false;
+		public string Status => "変更内容";
 	}
 	public abstract class FinancialEditer : BasketEditer {
 		protected FinancialEditer(CommonNode node):base(node) {

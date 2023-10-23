@@ -12,30 +12,9 @@
              xmlns:rp="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.WPF"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="auto"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="auto"/>
-        </Grid.RowDefinitions>
-        <!--<Grid.Resources>
-            <Style x:Key="TreeGridContainerSyle" TargetType="{x:Type TreeViewItem}"> 縞模様にしたかったけど上手くいかない
-                <Style.Triggers>
-                    <Trigger Property="ItemsControl.AlternationIndex" Value="0">
-                        <Setter Property="Background" Value="Blue"/>
-                    </Trigger>
-                    <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                        <Setter Property="Background" Value="Black"/>
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
-        </Grid.Resources>-->
-        <Expander x:Name="DateExpander" Grid.Column="0" Grid.Row="0" IsExpanded="True" ExpandDirection="Right" mah:ControlsHelper.ContentCharacterCasing="Normal">
+    <DockPanel LastChildFill="True" >
+        <Expander x:Name="DateExpander" DockPanel.Dock="Left" Grid.Column="0" Grid.Row="0" IsExpanded="True" ExpandDirection="Right"
+                  mah:ControlsHelper.ContentCharacterCasing="Normal">
             <Expander.Header>
                 <TextBlock Text="Date" TextAlignment="Right" Background="{Binding Background, ElementName=DateExpander}">
                     <TextBlock.LayoutTransform>
@@ -63,245 +42,288 @@
                 </TreeView.ItemTemplate>
             </TreeView>
         </Expander>
-        <Grid Grid.Column="1" Grid.Row="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="auto"/>
-            </Grid.RowDefinitions>
-            <tree:TreeListView Grid.Row="0" AllowsColumnReorder="True" ItemsSource="{Binding EditableTreeRoot.Children}" AlternationCount="2">
-                <tree:TreeListView.Resources>
-                    <Style TargetType="ToggleButton">
-                        <Setter Property="Focusable" Value="False" />
-                        <Setter Property="Height" Value="20" />
-                        <Setter Property="Width" Value="20" />
-                        <Setter Property="Margin" Value="1" />
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="{x:Type ToggleButton}">
-                                    <Grid 
-                                      Margin="{TemplateBinding Margin}"
-                                      Background="Transparent">
-                                        <Path x:Name="ExpandPath"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            Fill="Transparent"
-                                            Stroke="{DynamicResource MahApps.Brushes.Text}"
-                                            Data="{DynamicResource TreeArrow}">
-                                            <Path.RenderTransform>
-                                                <RotateTransform Angle="135" CenterX="3" CenterY="3" /> <!--Stroke="{DynamicResource MahApps.Brushes}"-->
-                                            </Path.RenderTransform>
-                                        </Path>
-                                    </Grid>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsChecked" Value="True">
-                                            <Setter TargetName="ExpandPath" Property="Fill" Value="Magenta" /> <!--Value="{DynamicResource GrayBrush1}"-->
-                                            <Setter TargetName="ExpandPath" Property="RenderTransform">
-                                                <Setter.Value>
-                                                    <RotateTransform Angle="180" CenterX="3" CenterY="3" />
-                                                </Setter.Value>
-                                            </Setter>
-                                            <Setter TargetName="ExpandPath" Property="Stroke" Value="Green" /> <!--Value="{DynamicResource BlackBrush}-->
-                                        </Trigger>
-                                        <Trigger Property="IsEnabled" Value="False">
-                                            <Setter TargetName="ExpandPath" Property="Stroke" Value="BlueViolet" /> <!--Value="{DynamicResource GrayBrush5}-->
-                                        </Trigger>
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="IsEnabled" Value="False" />
-                                                <Condition Property="IsChecked" Value="True" />
-                                            </MultiTrigger.Conditions>
-                                            <Setter TargetName="ExpandPath" Property="Fill" Value="RoyalBlue" />
-                                            <Setter TargetName="ExpandPath" Property="Stroke" Value="Blue" />
-                                        </MultiTrigger>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="ExpandPath" Property="Fill" Value="Blue" />
-                                            <Setter TargetName="ExpandPath" Property="Stroke" Value="Lime" />
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                    <Style TargetType="TreeViewItem" BasedOn="{StaticResource MahApps.Styles.TreeViewItem}">
-                        <Setter Property="IsExpanded" Value="{Binding IsExpand.Value, Mode=TwoWay}" />
-                        <Setter Property="IsSelected" Value="{Binding IsSelected.Value,Mode=TwoWay}"/>
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="TreeViewItem">
-                                    <!--Grid containing the current information and the subnodes.-->
-                                    <StackPanel>
-                                        <!--Border wrapping the content presenter.-->
-                                        <Border x:Name="Bd">
-                                            <!--GridViewRowPrsenter containing the current information.-->
-                                            <GridViewRowPresenter Content="{TemplateBinding Header}"
-                                                                  Columns="{Binding Columns, 
-                                                                  RelativeSource={RelativeSource Mode=FindAncestor, 
-                                                                  AncestorType=tree:TreeListView}}"/>
-                                        </Border>
-                                        <!--ItemsPresenter containing the subnodes-->
-                                        <ItemsPresenter x:Name="ItemsPresenter" Visibility="Collapsed"/>
-                                    </StackPanel>
-                                    <ControlTemplate.Triggers>
-                                        <!--Trigger used to show the sub items-->
-                                        <Trigger Property="IsExpanded" Value="True">
-                                            <Setter TargetName="ItemsPresenter" Property="Visibility" Value="Visible"/>
-                                        </Trigger>
-
-                                        <Trigger SourceName="Bd" Property="IsMouseOver" Value="True">
-                                            <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.DataGrid.Selection.Text.MouseOver}" />
-                                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource MahApps.Brushes.DataGrid.Selection.BorderBrush.MouseOver}" />
-                                        </Trigger>
-                                        <Trigger Property="IsSelected" Value="True">
-                                            <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Selected.Foreground}" />
-                                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource MahApps.Brushes.DataGrid.Selection.BorderBrush.Inactive}" />
-                                        </Trigger>
-                                        <Trigger Property="IsEnabled" Value="False">
-                                            <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.DataGrid.Selection.Background.Disabled}" />
-                                        </Trigger>
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="IsEnabled" Value="False" />
-                                                <Condition Property="IsSelected" Value="True" />
-                                            </MultiTrigger.Conditions>
-                                            <MultiTrigger.Setters>
-                                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource MahApps.Brushes.DataGrid.Selection.Background.Disabled}" />
-                                                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Selected.Foreground}" />
-                                            </MultiTrigger.Setters>
-                                        </MultiTrigger>
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="IsSelected" Value="True" />
-                                                <Condition Property="Selector.IsSelectionActive" Value="True" />
-                                            </MultiTrigger.Conditions>
-                                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource MahApps.Brushes.DataGrid.Selection.Background}" />
-                                        </MultiTrigger>
-
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-
-                    </Style>
-                    <!--<selector:NodeTemplateSelector x:Key="NodeTemplateSelector"/>-->
-                    <local:TargetOnlyEditTemplateSelector x:Key="toeSelector"/>
-                    <DataTemplate x:Key="Basket" DataType="{x:Type vm:EditableBasket}">
-                        <StackPanel Orientation="Horizontal">
-                            <tree:TreeListViewExpander x:Name="TreeExpander"  Margin="3,0"/>
-                            <TextBlock Text="{Binding Name.Value}" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </DataTemplate>
-                    <DataTemplate x:Key="Position" DataType="{x:Type vm:EditablePosition}">
-                        <StackPanel Orientation="Horizontal">
-                            <tree:TreeListViewExpander x:Name="TreeExpander"  Margin="3,0"/>
-                            <TextBlock Text="{Binding Name.Value}" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </DataTemplate>
-                    <DataTemplate x:Key="Cash" DataType="{x:Type vm:EditableCashPosition}">
-                        <StackPanel Orientation="Horizontal">
-                            <tree:TreeListViewExpander x:Name="TreeExpander"  Margin="3,0"/>
-                            <TextBlock Text="{Binding Name.Value}" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </DataTemplate>
-                    <DataTemplate x:Key="Other" DataType="{x:Type vm:TreeViewNode}">
-                        <StackPanel Orientation="Horizontal">
-                            <tree:TreeListViewExpander x:Name="TreeExpander"  Margin="3,0"/>
-                            <TextBlock Text="{Binding Name.Value}" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </tree:TreeListView.Resources>
-                <!--<tree:TreeListView.Style>
-                    <Style BasedOn="{StaticResource MahApps.Styles.DataGrid}" TargetType="{x:Type tree:TreeListView}">
-                        <Setter Property="AlternationCount"/>
-                    </Style>
-                </tree:TreeListView.Style>-->
-                <tree:TreeListView.ItemTemplate>
-                    <HierarchicalDataTemplate ItemsSource="{Binding Children}"/>
-                </tree:TreeListView.ItemTemplate>
-                <!--<i:Interaction.Triggers>
-                    <i:EventTrigger EventName="SelectedItemChanged">
-                        <rp:EventToReactiveCommand Command="{Binding EditableTreeRoot.SelectedCommand}">
-                            --><!--<local:SelectedTabToVMConverter/>--><!--
-                        </rp:EventToReactiveCommand>
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>-->
-                <tree:TreeListView.Columns>
-                    <GridViewColumn Header="項目" Width="auto" CellTemplateSelector="{StaticResource toeSelector}">
-                        <!--<GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Name}" HorizontalAlignment="Right"/>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>-->
-                    </GridViewColumn>
-                    <GridViewColumn Header="現在単価" Width="auto">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding PerPrice.Value}" HorizontalAlignment="Right"/>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-
-                    </GridViewColumn>
-                    <GridViewColumn Header="取引額" Width="auto">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding InvestmentValue.Value, StringFormat={}{0:N0}}" HorizontalAlignment="Right"/>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn Header="取引数量" Width="auto">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding TradeQuantity.Value, StringFormat={}{0:N0}}" HorizontalAlignment="Right"/>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn Header="保有数" Width="auto">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Quantity.Value, StringFormat={}{0:N0}}" HorizontalAlignment="Right"/>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn Header="評価額" Width="auto">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Amount.Value, StringFormat={}{0:N0}}" HorizontalAlignment="Right"/>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                </tree:TreeListView.Columns>
-            </tree:TreeListView>
-            
-        </Grid>
-        <GridSplitter Grid.Column="2" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Center" Width="5"/>
-        
-        <Grid Grid.Column="3" Grid.Row="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="auto"/>
-            </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" Text="{Binding Path}" Margin="5"/>
-            <DataGrid Grid.Row="1" MinWidth="100" Margin="5" ItemsSource="{Binding TradeHistory}" HorizontalScrollBarVisibility="Auto" AutoGenerateColumns="False">
-                <DataGrid.Resources>
-                    <Style TargetType="DataGridCell" BasedOn="{StaticResource MahApps.Styles.DataGridCell}">
-                        <Setter Property="HorizontalAlignment" Value="Right"/>
-                    </Style>
-                    
-                </DataGrid.Resources>
-                <DataGrid.Columns>
-                    <DataGridTemplateColumn Header="日付" CanUserReorder="True" CanUserResize="True" CanUserSort="False"/>
-                    <DataGridTemplateColumn Header="項目" CanUserReorder="True" CanUserResize="True" CanUserSort="False"/>
-                    <DataGridTemplateColumn Header="取引数量" CanUserReorder="True" CanUserResize="True" CanUserSort="False"/>
-                    <DataGridTemplateColumn Header="取引額" CanUserReorder="True" CanUserResize="True" CanUserSort="False"/>
-                    <DataGridTemplateColumn Header="保有数" CanUserReorder="True" CanUserResize="True" CanUserSort="False"/>
-                    <DataGridTemplateColumn Header="評価額" CanUserReorder="True" CanUserResize="True" CanUserSort="False"/>
-                    <DataGridTemplateColumn Header="タグ" CanUserReorder="True" CanUserResize="True" CanUserSort="False"/>
-                </DataGrid.Columns>
-                
-            </DataGrid>
-        </Grid>
-        <GroupBox Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="1" Header="Edit" Margin="1" mah:ControlsHelper.ContentCharacterCasing="Normal">
-            <TextBlock Text="aaaaaa"/>
+        <GroupBox DockPanel.Dock="Bottom" Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="1" Header="Edit" Margin="1" mah:ControlsHelper.ContentCharacterCasing="Normal">
+            <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
+                <local:EditPosition DataContext="{Binding EditableTreeRoot.CurrentNode.Value}"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <StackPanel.Resources>
+                        <Thickness x:Key="ButtonMargin">5,5</Thickness>
+                    </StackPanel.Resources>
+                    <Button Content="Clear" Margin="{StaticResource ButtonMargin}"/>
+                    <Button Content="Apply" Margin="{StaticResource ButtonMargin}"/>
+                </StackPanel>
+            </StackPanel>
         </GroupBox>
-    </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <!--<Grid.Resources>
+                <Style x:Key="TreeGridContainerSyle" TargetType="{x:Type TreeViewItem}"> 縞模様にしたかったけど上手くいかない
+                    <Style.Triggers>
+                        <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                            <Setter Property="Background" Value="Blue"/>
+                        </Trigger>
+                        <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                            <Setter Property="Background" Value="Black"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Resources>-->
+            <Grid Grid.Column="0" Grid.Row="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <tree:TreeListView Grid.Row="0" AllowsColumnReorder="True" ItemsSource="{Binding EditableTreeRoot.Children}" AlternationCount="2">
+                    <tree:TreeListView.Resources>
+                        <Style TargetType="ToggleButton">
+                            <Setter Property="Focusable" Value="False" />
+                            <Setter Property="Height" Value="20" />
+                            <Setter Property="Width" Value="20" />
+                            <Setter Property="Margin" Value="1" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                                        <Grid 
+                                          Margin="{TemplateBinding Margin}"
+                                          Background="Transparent">
+                                            <Path x:Name="ExpandPath"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Fill="Transparent"
+                                                Stroke="{DynamicResource MahApps.Brushes.Text}"
+                                                Data="{DynamicResource TreeArrow}">
+                                                <Path.RenderTransform>
+                                                    <RotateTransform Angle="135" CenterX="3" CenterY="3" />
+                                                    <!--Stroke="{DynamicResource MahApps.Brushes}"-->
+                                                </Path.RenderTransform>
+                                            </Path>
+                                        </Grid>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="ExpandPath" Property="Fill" Value="Magenta" />
+                                                <!--Value="{DynamicResource GrayBrush1}"-->
+                                                <Setter TargetName="ExpandPath" Property="RenderTransform">
+                                                    <Setter.Value>
+                                                        <RotateTransform Angle="180" CenterX="3" CenterY="3" />
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Setter TargetName="ExpandPath" Property="Stroke" Value="Green" />
+                                                <!--Value="{DynamicResource BlackBrush}-->
+                                            </Trigger>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter TargetName="ExpandPath" Property="Stroke" Value="BlueViolet" />
+                                                <!--Value="{DynamicResource GrayBrush5}-->
+                                            </Trigger>
+                                            <MultiTrigger>
+                                                <MultiTrigger.Conditions>
+                                                    <Condition Property="IsEnabled" Value="False" />
+                                                    <Condition Property="IsChecked" Value="True" />
+                                                </MultiTrigger.Conditions>
+                                                <Setter TargetName="ExpandPath" Property="Fill" Value="RoyalBlue" />
+                                                <Setter TargetName="ExpandPath" Property="Stroke" Value="Blue" />
+                                            </MultiTrigger>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="ExpandPath" Property="Fill" Value="Blue" />
+                                                <Setter TargetName="ExpandPath" Property="Stroke" Value="Lime" />
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                        <Style TargetType="TreeViewItem" BasedOn="{StaticResource MahApps.Styles.TreeViewItem}">
+                            <Setter Property="IsExpanded" Value="{Binding IsExpand.Value, Mode=TwoWay}" />
+                            <Setter Property="IsSelected" Value="{Binding IsSelected.Value,Mode=TwoWay}"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="TreeViewItem">
+                                        <!--Grid containing the current information and the subnodes.-->
+                                        <StackPanel>
+                                            <!--Border wrapping the content presenter.-->
+                                            <Border x:Name="Bd">
+                                                <!--GridViewRowPrsenter containing the current information.-->
+                                                <GridViewRowPresenter Content="{TemplateBinding Header}"
+                                                                      Columns="{Binding Columns, 
+                                                                      RelativeSource={RelativeSource Mode=FindAncestor, 
+                                                                      AncestorType=tree:TreeListView}}"/>
+                                            </Border>
+                                            <!--ItemsPresenter containing the subnodes-->
+                                            <ItemsPresenter x:Name="ItemsPresenter" Visibility="Collapsed"/>
+                                        </StackPanel>
+                                        <ControlTemplate.Triggers>
+                                            <!--Trigger used to show the sub items-->
+                                            <Trigger Property="IsExpanded" Value="True">
+                                                <Setter TargetName="ItemsPresenter" Property="Visibility" Value="Visible"/>
+                                            </Trigger>
+
+                                            <Trigger SourceName="Bd" Property="IsMouseOver" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.DataGrid.Selection.Text.MouseOver}" />
+                                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource MahApps.Brushes.DataGrid.Selection.BorderBrush.MouseOver}" />
+                                            </Trigger>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Selected.Foreground}" />
+                                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource MahApps.Brushes.DataGrid.Selection.BorderBrush.Inactive}" />
+                                            </Trigger>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.DataGrid.Selection.Background.Disabled}" />
+                                            </Trigger>
+                                            <MultiTrigger>
+                                                <MultiTrigger.Conditions>
+                                                    <Condition Property="IsEnabled" Value="False" />
+                                                    <Condition Property="IsSelected" Value="True" />
+                                                </MultiTrigger.Conditions>
+                                                <MultiTrigger.Setters>
+                                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource MahApps.Brushes.DataGrid.Selection.Background.Disabled}" />
+                                                    <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Selected.Foreground}" />
+                                                </MultiTrigger.Setters>
+                                            </MultiTrigger>
+                                            <MultiTrigger>
+                                                <MultiTrigger.Conditions>
+                                                    <Condition Property="IsSelected" Value="True" />
+                                                    <Condition Property="Selector.IsSelectionActive" Value="True" />
+                                                </MultiTrigger.Conditions>
+                                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource MahApps.Brushes.DataGrid.Selection.Background}" />
+                                            </MultiTrigger>
+
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+
+                        </Style>
+                        <!--<selector:NodeTemplateSelector x:Key="NodeTemplateSelector"/>-->
+                        <local:TargetOnlyEditTemplateSelector x:Key="toeSelector"/>
+                        <DataTemplate x:Key="Basket" DataType="{x:Type vm:EditableBasket}">
+                            <StackPanel Orientation="Horizontal">
+                                <tree:TreeListViewExpander x:Name="TreeExpander"  Margin="3,0"/>
+                                <TextBlock Text="{Binding Name.Value}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </DataTemplate>
+                        <DataTemplate x:Key="Position" DataType="{x:Type vm:EditablePosition}">
+                            <StackPanel Orientation="Horizontal">
+                                <tree:TreeListViewExpander x:Name="TreeExpander"  Margin="3,0"/>
+                                <TextBlock Text="{Binding Name.Value}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </DataTemplate>
+                        <DataTemplate x:Key="Cash" DataType="{x:Type vm:EditableCashPosition}">
+                            <StackPanel Orientation="Horizontal">
+                                <tree:TreeListViewExpander x:Name="TreeExpander"  Margin="3,0"/>
+                                <TextBlock Text="{Binding Name.Value}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </DataTemplate>
+                        <DataTemplate x:Key="Other" DataType="{x:Type vm:TreeViewNode}">
+                            <StackPanel Orientation="Horizontal">
+                                <tree:TreeListViewExpander x:Name="TreeExpander"  Margin="3,0"/>
+                                <TextBlock Text="{Binding Name.Value}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </tree:TreeListView.Resources>
+                    <!--<tree:TreeListView.Style>
+                        <Style BasedOn="{StaticResource MahApps.Styles.DataGrid}" TargetType="{x:Type tree:TreeListView}">
+                            <Setter Property="AlternationCount"/>
+                        </Style>
+                    </tree:TreeListView.Style>-->
+                    <tree:TreeListView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Children}"/>
+                    </tree:TreeListView.ItemTemplate>
+                    <!--<i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectedItemChanged">
+                            <rp:EventToReactiveCommand Command="{Binding EditableTreeRoot.SelectedCommand}">
+                                -->
+                    <!--<local:SelectedTabToVMConverter/>-->
+                    <!--
+                            </rp:EventToReactiveCommand>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>-->
+                    <tree:TreeListView.Columns>
+                        <GridViewColumn Header="項目" Width="auto" CellTemplateSelector="{StaticResource toeSelector}">
+                            <!--<GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" HorizontalAlignment="Right"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>-->
+                        </GridViewColumn>
+                        <GridViewColumn Header="現在単価" Width="auto">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding PerPrice.Value}" HorizontalAlignment="Right"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+
+                        </GridViewColumn>
+                        <GridViewColumn Header="取引額" Width="auto">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding InvestmentValue.Value, StringFormat={}{0:N0}}" HorizontalAlignment="Right"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="取引数量" Width="auto">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding TradeQuantity.Value, StringFormat={}{0:N0}}" HorizontalAlignment="Right"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="保有数" Width="auto">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Quantity.Value, StringFormat={}{0:N0}}" HorizontalAlignment="Right"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="評価額" Width="auto">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Amount.Value, StringFormat={}{0:N0}}" HorizontalAlignment="Right"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </tree:TreeListView.Columns>
+                </tree:TreeListView>
+
+            </Grid>
+            <GridSplitter Grid.Column="1" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Center" Width="5"/>
+
+            <Grid Grid.Column="2" Grid.Row="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="{Binding Path}" Margin="5"/>
+                <WrapPanel Grid.Row="1">
+                    <CheckBox Content="取引のみ"/>
+                    <CheckBox Content="当日を含むポジション"/>
+                    <CheckBox Content="昇順"/>
+                </WrapPanel>
+                <DataGrid Grid.Row="2" MinWidth="100" Margin="5" ItemsSource="{Binding TradeHistory}" HorizontalScrollBarVisibility="Auto" AutoGenerateColumns="False">
+                    <DataGrid.Resources>
+                        <Style TargetType="DataGridCell" BasedOn="{StaticResource MahApps.Styles.DataGridCell}">
+                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                        </Style>
+
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="日付" CanUserReorder="True" CanUserResize="True" CanUserSort="False"/>
+                        <DataGridTemplateColumn Header="項目" CanUserReorder="True" CanUserResize="True" CanUserSort="False"/>
+                        <DataGridTemplateColumn Header="取引数量" CanUserReorder="True" CanUserResize="True" CanUserSort="False"/>
+                        <DataGridTemplateColumn Header="取引額" CanUserReorder="True" CanUserResize="True" CanUserSort="False"/>
+                        <DataGridTemplateColumn Header="保有数" CanUserReorder="True" CanUserResize="True" CanUserSort="False"/>
+                        <DataGridTemplateColumn Header="評価額" CanUserReorder="True" CanUserResize="True" CanUserSort="False"/>
+                        <DataGridTemplateColumn Header="タグ" CanUserReorder="True" CanUserResize="True" CanUserSort="False"/>
+                    </DataGrid.Columns>
+
+                </DataGrid>
+            </Grid>
+        </Grid>
+    </DockPanel>
 </UserControl>

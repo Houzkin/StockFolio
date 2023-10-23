@@ -16,7 +16,7 @@ namespace PortFolion.Core {
 
 
 		public static RootCollection Instance { get; } = new RootCollection();
-
+		#region static
 		public static TotalRiskFundNode GetOrCreate(DateTime date) {
 			date = new DateTime(date.Year, date.Month, date.Day);
 			if (!Instance.Keys.Contains(date)) {
@@ -130,20 +130,23 @@ namespace PortFolion.Core {
 		internal static void RemoveNodeTag(NodePath<string> path,DateTime current) {
 			foreach (var t in GetNodeLine(path, current).Values) t.Tag = null;
 		}
+		#endregion
 
 		#region インスタンス
 		private RootCollection() :base() {
 			var itm = HistoryIO.ReadRoots().OrderBy(a => a.CurrentDate);
-			foreach (var i in itm) this.Items.Add(i);
+			foreach (var i in itm) this.Add(i);// this.Items.Add(i);
 		}
 		public void Refresh() {
-			
-			this.Items.Clear();
-			
-			var itm = HistoryIO.ReadRoots().OrderBy(a => a.CurrentDate);
-			foreach (var i in itm) this.Items.Add(i);
 
-			this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+			//this.Items.Clear();
+			foreach (var ri in this.ToArray()) this.Remove(ri);
+			this.Clear();
+
+			var itm = HistoryIO.ReadRoots().OrderBy(a => a.CurrentDate);
+			foreach (var a in itm) this.Add(a);// this.Items.Add(i);
+
+			//this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 		}
 		internal void DateTimeChange(DateTime date) {
 			var lst = new List<DateTime>(this.Keys);

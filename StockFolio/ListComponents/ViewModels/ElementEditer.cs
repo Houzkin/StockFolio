@@ -70,6 +70,7 @@ namespace StockFolio.ViewModels {
 		public ReactiveCommand ApplyCommand { get; }
 		public abstract void Reset();
 
+		public CommonNode ModelNode => this.Model;
 		protected CompositeDisposable Disposables = new CompositeDisposable();
 		protected override void Dispose(bool disposing) {
 			if(disposing) Disposables.Dispose();
