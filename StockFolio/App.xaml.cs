@@ -13,23 +13,22 @@ using StockFolio.Views;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using SkiaSharp;
+using StockFolio.ExtractData;
 
 namespace StockFolio
 {
 	/// <summary>
 	/// Interaction logic for App.xaml
 	/// </summary>
-	public partial class App
-	{
+	public partial class App{
 		private Mutex mutex = new Mutex(false, "HalationGostStockFolio");
 		protected override Window CreateShell() {
 			var shell = Container.Resolve<Main>();
 			return shell;
 		}
 
-		protected override void RegisterTypes(IContainerRegistry containerRegistry)
-		{
-			
+		protected override void RegisterTypes(IContainerRegistry containerRegistry) {
+			containerRegistry.RegisterSingleton<AttachDetachSwitcher>();
 		}
 		private  void PrismApplication_Startup(object sender,StartupEventArgs e) {
 			if (this.mutex.WaitOne(0, false)) return;

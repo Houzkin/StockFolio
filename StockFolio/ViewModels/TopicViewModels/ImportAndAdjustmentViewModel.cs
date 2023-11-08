@@ -13,7 +13,7 @@ namespace StockFolio.ViewModels {
 		public AttachDetachSwitcher GetAttacheDetach() => MainViewModel.GetMainViewModel().compositeAttachDettach;
 		public AdjustmentViewModel AdjustmentVM { get; } 
 		public ImportViewModel ImportVM { get; }
-		public ObservableDictionary<CommonNode,TreeViewNode> NodeCash { get; } = new();
+		public ObservableDictionary<CommonNode,TreeViewContainer> NodeCash { get; } = new();
 		public ObservableStack<IUndoOrder> UndoOrderList => UndoOrders;
 		public ImportAndAdjustmentViewModel() { 
 			this.AdjustmentVM = new AdjustmentViewModel(this);

@@ -1,0 +1,51 @@
+﻿<UserControl x:Class="StockFolio.Views.EditBasket"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:StockFolio.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="100" d:DesignWidth="300" d:Background="WhiteSmoke">
+    <UserControl.Resources>
+        <Thickness x:Key="CellMargin">5 1 5 1</Thickness>
+        <Thickness x:Key="TxtMargin">5 1</Thickness>
+    </UserControl.Resources>
+    <DockPanel HorizontalAlignment="Left" LastChildFill="False">
+        <Grid Margin="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!--Row Background-->
+            <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="6" Background="#19838383" />
+            <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="6"  Background="#19838383"/>
+            <!--Header line-->
+            <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="4"  BorderBrush="{StaticResource MahApps.Brushes.Separator}" BorderThickness="0,0,2,0"/>
+            <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6"  BorderBrush="{StaticResource MahApps.Brushes.Separator}" BorderThickness="0,0,0,2"/>
+            <!--Row header-->
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="変更前" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="変更内容" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBlock Grid.Row="3" Grid.Column="0" Text="変更後" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <!--Column header-->
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="項目" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+            <TextBlock Grid.Row="0" Grid.Column="2" Text="残高" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <!--項目-->
+            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Editer.ModelName.Value}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Editer.Name.Value}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="{StaticResource TxtMargin}" MinWidth="70" HorizontalContentAlignment="Right"/>
+            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Editer.Name.Value}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <!--残高-->
+            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Editer.ModelAmount.Value}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding Editer.Amount.Value}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="{StaticResource TxtMargin}" MinWidth="70"/>
+            <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding Editer.PreviewAmount.Value}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+
+        </Grid>
+    </DockPanel>
+</UserControl>

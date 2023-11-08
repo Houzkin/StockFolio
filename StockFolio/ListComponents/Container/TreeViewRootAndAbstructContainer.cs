@@ -21,27 +21,25 @@ using System.Windows.Media;
 
 namespace StockFolio.ViewModels {
 	
-	public class TreeViewNode : ObservableTreeNode<TreeViewNode>, INotifyPropertyChanged {
-		protected static TreeViewNode Create(CommonNode model) {
+	public class TreeViewContainer : ObservableTreeNode<TreeViewContainer>, INotifyPropertyChanged {
+		protected static TreeViewContainer Create(CommonNode model) {
 			var n = model switch {
-				FinancialProduct ep => new EditablePosition(ep),
-				CashValue ep=> new EditableCashPosition(ep),
-				CommonNode ep=> new EditableBasket(ep),
+				FinancialProduct ep => new PositionContainer(ep),
+				CashValue ep=> new CashPositionContainer(ep),
+				CommonNode ep=> new BasketContainer(ep),
 			};
 			return n;
 		}
-		protected TreeViewNode(CommonNode model) {
+		protected TreeViewContainer(CommonNode model) {
 			this.Model = model;
-			this.TestName = model.Name;
 			this.IsSelected.Where(x => x).Subscribe(_ => OnSelected(this));
 		}
-		protected TreeViewNode() : this(new AnonymousNode()) { }
+		protected TreeViewContainer() : this(new AnonymousNode()) { }
 
 		public ReactiveProperty<bool> IsExpand { get; } = new ReactiveProperty<bool>(true);
 		public ReactiveProperty<bool> IsSelected { get; } = new ReactiveProperty<bool>(false);
-		public string TestName { get; set; }
 		public CommonNode Model { get; }
-		protected virtual void OnSelected(TreeViewNode node) {
+		protected virtual void OnSelected(TreeViewContainer node) {
 			if (this.IsRoot()) return;
 			this.Root().OnSelected(this);
 		}
@@ -57,8 +55,8 @@ namespace StockFolio.ViewModels {
 			base.Dispose(disposing); 
 		}
 	}
-	public class EditableBasket : TreeViewNode {
-		public EditableBasket(CommonNode model):base(model) {
+	public class BasketContainer : TreeViewContainer {
+		public BasketContainer(CommonNode model):base(model) {
 			Disposable.Create(() => this.Editer?.Dispose()).AddTo(Disposables);
 			this.Name = model.ObserveProperty(x => x.Name).ToReadOnlyReactiveProperty<string>().AddTo(Disposables);
 			this.Amount = model.ObserveProperty(x=>x.Amount).ToReadOnlyReactiveProperty().AddTo(Disposables);
@@ -66,68 +64,29 @@ namespace StockFolio.ViewModels {
 		protected virtual ElementEditer GenerateEditer() {
 			return new BasketEditer(Model);
 		}
-		protected virtual List<object> GenerateEditerGridItems() {
-			return new List<object>() { 
-				new ReadOnlyGridElements(Model).AddTo(Disposables), 
-				Editer,
-				new ReadOnlyGridElements(Editer).AddTo(Disposables)
-			};
-		}
 		ElementEditer? _editer;
 		public ElementEditer Editer { get => _editer ??= GenerateEditer(); }
-		List<object>? edititems;
-		public List<object> EditerGridItems { get => edititems ??= this.GenerateEditerGridItems(); }
 		public ReadOnlyReactiveProperty<string> Name { get; }
 		public ReadOnlyReactiveProperty<long> Amount { get; }
+		ICommand? applyCommand;
+		ICommand? cancelCommand;
+		public ICommand ApplyCommand {
+			get => applyCommand ??= GenerateApplyCommand();
+		}
+		protected virtual ICommand GenerateApplyCommand() {
+			return this.Editer.CanApply.ToReactiveCommand().WithSubscribe(() => this.Editer.Apply()).AddTo(Disposables);
+		}
+		public ICommand CancelCommand {
+			get => cancelCommand ??= GenerateCancelCommand();
+		}
+		protected virtual ICommand GenerateCancelCommand() {
+			return new ReactiveCommand().WithSubscribe(() => this.Editer.Reset()).AddTo(Disposables);
+		}
 		
-		
 	}
-	public class EditableCashPosition : EditableBasket {
-		public EditableCashPosition(FinancialValue model):base(model) {
-			this.InvestmentValue = model.ObserveProperty(x => x.InvestmentValue).ToReadOnlyReactiveProperty().AddTo(Disposables);
-		}
-		protected override ElementEditer GenerateEditer() {
-			return new CashPositionEditer(Model);
-		}
-		public ReadOnlyReactiveProperty<long> InvestmentValue { get; }
-		public virtual List<object>? CashEditerGridItems { get => this.EditerGridItems; }
-	}
-	public class EditablePosition : EditableCashPosition {
-		public EditablePosition(FinancialProduct model):base(model) {
-			this.TradeQuantity = model.ObserveProperty(x => x.TradeQuantity).ToReadOnlyReactiveProperty().AddTo(Disposables);
-			this.Quantity = model.ObserveProperty(x => x.Quantity).ToReadOnlyReactiveProperty().AddTo(Disposables);
-			this.PerPrice = new[] { this.Amount, this.Quantity }
-				.CombineLatest(x =>x[1] != 0 ? (double)x[0] / x[1] : 0)
-				.Select(x=>string.Format("{0:#,#.##}",x))
-				.ToReadOnlyReactiveProperty<string>();
-		}
-		protected override ElementEditer GenerateEditer() {
-			return new ProductEditor(Model);
-		}
-		public ReadOnlyReactiveProperty<string> PerPrice { get; }
-		public ReadOnlyReactiveProperty<long> TradeQuantity { get; }
-		public ReadOnlyReactiveProperty<long> Quantity { get; }
-		public ElementEditer? CashPositionEditer { get {
-				return (this.Siblings().Where(a => a.Model is CashValue).FirstOrDefault() as EditableCashPosition)?.Editer;
-			}
-		}
-		List<object>? cashEditerGridItems;
-		public override List<object>? CashEditerGridItems {
-			get {
-				if(cashEditerGridItems != null) return cashEditerGridItems;
-				var editer = CashPositionEditer;
-				if (editer == null) return null;
-				cashEditerGridItems = new List<object>() {
-					new ReadOnlyGridElements(editer.ModelNode).AddTo(Disposables),
-					editer,
-					new ReadOnlyGridElements(editer).AddTo(Disposables),
-				};
-				return cashEditerGridItems;
-            }
-		}
-	}
-    public class TreeViewGridRoot : TreeViewNode {
-		private ObservableDictionary<CommonNode, TreeViewNode> _buffDic { get; }
+    
+    public class TreeViewGridRoot : TreeViewContainer {
+		private ObservableDictionary<CommonNode, TreeViewContainer> _buffDic { get; }
 		public TreeViewGridRoot(ImportAndAdjustmentViewModel viewmodel):base() {
 			this._buffDic = viewmodel.NodeCash;
 			CurrentDate = _currentDate.ToReadOnlyReactiveProperty();
@@ -137,11 +96,11 @@ namespace StockFolio.ViewModels {
 		//public DelegateCommand SelectedCommand { get; set; }
 		public ReadOnlyReactiveProperty<DateTime?> CurrentDate { get; private set; }
 		private ReactiveProperty<DateTime?> _currentDate { get; } = new ReactiveProperty<DateTime?>();
-		public ReadOnlyReactiveProperty<TreeViewNode?> CurrentNode { get; private set; }
-		private ReactiveProperty<TreeViewNode?> _currentNode { get; } = new ();
+		public ReadOnlyReactiveProperty<TreeViewContainer?> CurrentNode { get; private set; }
+		private ReactiveProperty<TreeViewContainer?> _currentNode { get; } = new ();
 		public void DisplayTo(DateTime date) {
 			this.DismantleDescendants();
-			this.ClearChildren();
+			//this.ClearChildren();
 			var root = RootCollection.Instance.FirstOrDefault(a => a.CurrentDate == date);
 			if (root == null) {
 				this._currentDate.Value = null;
@@ -149,10 +108,10 @@ namespace StockFolio.ViewModels {
 				return;
 			}
 			var shdw = (root as CommonNode).Convert(a => {
-				return ResultWithValue.Of<CommonNode, TreeViewNode>(_buffDic.TryGetValue, a)
+				return ResultWithValue.Of<CommonNode, TreeViewContainer>(_buffDic.TryGetValue, a)
 					.TrueOrNot(o => o,
 					x => {
-						var v = TreeViewNode.Create(a);
+						var v = TreeViewContainer.Create(a);
 						_buffDic[a] = v;
 						return v;
 					});
@@ -174,7 +133,7 @@ namespace StockFolio.ViewModels {
 			if (this.CurrentDate.Value != null) DisplayTo(this.CurrentDate.Value.Value);
 			else this.DismantleDescendants();
 		}
-		protected override void OnSelected(TreeViewNode node) {
+		protected override void OnSelected(TreeViewContainer node) {
 			//base.OnSelected(node);
 			this._currentNode.Value = node;
 		}

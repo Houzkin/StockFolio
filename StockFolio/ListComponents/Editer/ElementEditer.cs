@@ -43,15 +43,7 @@ namespace StockFolio.ViewModels {
 
 			HasErrors = ErrorProperties.CollectionChangedAsObservable().Select(_ => ErrorProperties.Any()).ToReadOnlyReactiveProperty();
 
-			ApplyCommand = new[] { HasEditOrder, HasErrors.Inverse(), }
-				.CombineLatestValuesAreAllTrue()
-				.ToReactiveCommand()
-				.WithSubscribe(() => {
-					EditOrders.OrderBy(x=>x.Priority).ToArray().ForEach(
-						a => ImportAndAdjustmentViewModel.UndoOrders.Push(a.Apply())
-					);
-					this.Reset();
-				});
+			CanApply = new[] { HasEditOrder, HasErrors.Inverse(), }.CombineLatestValuesAreAllTrue().ToReadOnlyReactiveProperty();
 		}
 		protected ObservableCollection<EditPresenterBase> OrderReserver { get; } = new();
 		public IFilteredReadOnlyObservableCollection<EditPresenterBase> EditOrders { get; }
@@ -67,7 +59,13 @@ namespace StockFolio.ViewModels {
 			if (hasError) ErrorProperties.Add(propName);
             else ErrorProperties.Remove(propName);
         }
-		public ReactiveCommand ApplyCommand { get; }
+		public void Apply() {
+            EditOrders.OrderBy(x => x.Priority).ToArray().ForEach(
+                        a => ImportAndAdjustmentViewModel.UndoOrders.Push(a.Apply())
+                    );
+            this.Reset();
+        }
+		public ReadOnlyReactiveProperty<bool> CanApply { get; }
 		public abstract void Reset();
 
 		public CommonNode ModelNode => this.Model;

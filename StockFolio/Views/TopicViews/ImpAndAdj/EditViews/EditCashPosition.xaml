@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:StockFolio.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" >
+             d:DesignHeight="100" d:DesignWidth="800" d:Background="White">
     <UserControl.Resources>
         <Thickness x:Key="CellMargin">5 1 5 1</Thickness>
         <Thickness x:Key="TxtMargin">5 1</Thickness>
@@ -104,9 +104,9 @@
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <!--Row Background-->
             <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="6" Background="#19838383" />
@@ -115,36 +115,36 @@
             <!--Header line-->
             <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="4"  BorderBrush="{StaticResource MahApps.Brushes.Separator}" BorderThickness="0,0,2,0"/>
             <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6"  BorderBrush="{StaticResource MahApps.Brushes.Separator}" BorderThickness="0,0,0,2"/>
+            <!--Row header-->
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="変更前" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="変更内容" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBlock Grid.Row="3" Grid.Column="0" Text="変更後" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
             <!--Column header-->
             <TextBlock Grid.Row="0" Grid.Column="1" Text="項目" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
             <TextBlock Grid.Row="0" Grid.Column="2" Text="追加入出金額" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
             <TextBlock Grid.Row="0" Grid.Column="3" Text="当日入出合計" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
             <TextBlock Grid.Row="0" Grid.Column="4" Text="取引・金利・配当による残高変更" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
             <TextBlock Grid.Row="0" Grid.Column="5" Text="残高" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-            <!--Row header-->
-            <TextBlock Grid.Row="1" Grid.Column="0" Text="変更前" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-            <TextBlock Grid.Row="2" Grid.Column="0" Text="変更内容" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-            <TextBlock Grid.Row="3" Grid.Column="0" Text="変更後" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
             <!--項目-->
-            <TextBlock Grid.Row="1" Grid.Column="1" Text="" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-            <TextBox Grid.Row="2" Grid.Column="1" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="{StaticResource TxtMargin}" MinWidth="70"/>
-            <TextBlock Grid.Row="3" Grid.Column="1" Text="" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Editer.ModelName.Value}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Editer.Name.Value}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="{StaticResource TxtMargin}" MinWidth="70" HorizontalContentAlignment="Right"/>
+            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Editer.Name.Value}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
             <!--追加入出金-->
             <TextBlock Grid.Row="1" Grid.Column="2" Text="" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-            <TextBox Grid.Row="2" Grid.Column="2" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="{StaticResource TxtMargin}" MinWidth="70" HorizontalContentAlignment="Right"/>
+            <TextBox Grid.Row="2" Grid.Column="2" Text="{Binding Editer.AddInvestmentValue.Value}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="{StaticResource TxtMargin}" MinWidth="70" HorizontalContentAlignment="Right"/>
             <TextBlock Grid.Row="3" Grid.Column="2" Text="" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
             <!--入出金合計-->
-            <TextBlock Grid.Row="1" Grid.Column="3" Text="" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-            <TextBox Grid.Row="2" Grid.Column="3" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="{StaticResource TxtMargin}" MinWidth="70" HorizontalContentAlignment="Right"/>
-            <TextBlock Grid.Row="3" Grid.Column="3" Text="" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding Editer.ModelInvestmentValue.Value}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBox Grid.Row="2" Grid.Column="3" Text="{Binding Editer.InvestmentValue.Value}" IsReadOnly="{Binding Alteration.Value,Converter={StaticResource BooleanToVisibilityConverter}}" IsEnabled="{Binding Alteration.Value}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="{StaticResource TxtMargin}" MinWidth="70" HorizontalContentAlignment="Right"/>
+            <TextBlock Grid.Row="3" Grid.Column="3" Text="{Binding Editer.PreviewInvestmentValue.Value}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
             <!--残高変更-->
             <TextBlock Grid.Row="1" Grid.Column="4" Text="" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-            <TextBox Grid.Row="2" Grid.Column="4" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="{StaticResource TxtMargin}" MinWidth="70" HorizontalContentAlignment="Right"/>
+            <TextBox Grid.Row="2" Grid.Column="4" Text="{Binding Editer.AddAmount.Value}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="{StaticResource TxtMargin}" MinWidth="70" HorizontalContentAlignment="Right"/>
             <TextBlock Grid.Row="3" Grid.Column="4" Text="" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
             <!--残高-->
-            <TextBlock Grid.Row="1" Grid.Column="5" Text="" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-            <TextBox Grid.Row="2" Grid.Column="5" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="{StaticResource TxtMargin}" MinWidth="70" HorizontalContentAlignment="Right"/>
-            <TextBlock Grid.Row="3" Grid.Column="5" Text="" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBlock Grid.Row="1" Grid.Column="5" Text="{Binding Editer.ModelAmount.Value}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBox Grid.Row="2" Grid.Column="5" Text="{Binding Editer.Amount.Value}" IsReadOnly="{Binding Alteration.Value,Converter={StaticResource BooleanToVisibilityConverter}}" IsEnabled="{Binding Alteration.Value}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="{StaticResource TxtMargin}" MinWidth="70" HorizontalContentAlignment="Right"/>
+            <TextBlock Grid.Row="3" Grid.Column="5" Text="{Binding Editer.PreviewAmount.Value}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
             
         </Grid>
     </DockPanel>

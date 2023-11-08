@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -29,28 +30,31 @@ namespace StockFolio.ViewModels {
 		public override void Reset() {
 			this.Name.Value = Model.Name;
 		}
-		public bool IsEnabled => true;
-		public bool IsReadOnly => false;
-		public string Status => "変更内容";
 	}
 	public abstract class FinancialEditer : BasketEditer {
-		protected FinancialEditer(CommonNode node):base(node) {
+		protected FinancialEditer(CommonNode model):base(model) {
 			#region 単一編集
-			this.Amount = node.ObserveProperty(x => x.Amount).ToReactiveProperty().AddTo(Disposables);
+			this.Amount = model.ObserveProperty(x => x.Amount).ToReactiveProperty().AddTo(Disposables);
 			this.Amount.Subscribe(_ => this.CheckChangedProperty(nameof(Amount)));
 			OrderReserver.Add(new EditPresenter<long>(nameof(Amount),
 				() => this.Amount.Value,
-				() => node.Amount,
+				() => model.Amount,
 				x => innerModel.SetAmount(x)));
-			this.InvestmentValue = node.ObserveProperty(x => x.InvestmentValue).ToReactiveProperty().AddTo(Disposables);
+			this.InvestmentValue = model.ObserveProperty(x => x.InvestmentValue).ToReactiveProperty().AddTo(Disposables);
 			this.InvestmentValue.Subscribe(_=>CheckChangedProperty(nameof(InvestmentValue)));
 			OrderReserver.Add(new EditPresenter<long>(nameof(InvestmentValue),
 				() => this.InvestmentValue.Value,
-				() => node.InvestmentValue,
-				x => node.SetInvestmentValue(x)));
-			#endregion
-		}
-		public override void Reset() {
+				() => model.InvestmentValue,
+				x => model.SetInvestmentValue(x)));
+            #endregion
+            #region model
+            this.ModelAmount = model.ObserveProperty(x => x.Amount)
+                .ToReadOnlyReactiveProperty<long>().AddTo(Disposables);
+            this.ModelInvestmentValue = model.ObserveProperty(x => x.InvestmentValue)
+                .ToReadOnlyReactiveProperty().AddTo(Disposables);
+            #endregion
+        }
+        public override void Reset() {
 			base.Reset();
 			this.Amount.Value = Model.Amount;
 			this.InvestmentValue.Value = Model.InvestmentValue;
@@ -59,8 +63,10 @@ namespace StockFolio.ViewModels {
 		public ReactiveProperty<long> Amount { get; }
 		public ReactiveProperty<long> InvestmentValue { get; }
 		public abstract ReadOnlyReactiveProperty<long> PreviewAmount { get; }
-		public abstract ReadOnlyReactiveProperty<long> PreviewInvestmentValue { get;}
-	}
+		public abstract ReadOnlyReactiveProperty<long> PreviewInvestmentValue { get; }
+        public ReadOnlyReactiveProperty<long> ModelAmount { get; }
+        public ReadOnlyReactiveProperty<long> ModelInvestmentValue { get; }
+    }
 	public class CashPositionEditer : FinancialEditer {
 		public CashPositionEditer(CommonNode model) : base(model) {
 			#region 単一編集
@@ -83,19 +89,19 @@ namespace StockFolio.ViewModels {
 				x => x * -1));
 			#endregion
 			#region 連動変化
-			this.AddInvestmentValue.Subscribe(x => this.AddAmount.Value = x);
+			//this.AddInvestmentValue.Subscribe(x => this.AddAmount.Value = x);
 			#endregion
 			#region プレビュー
 			PreviewAmount = new[] {
-				this.Amount,this.AddAmount,
-			}.CombineLatest(x => x.Sum()).ToReadOnlyReactiveProperty();
+				this.Amount,this.AddAmount,this.AddInvestmentValue
+            }.CombineLatest(x => x.Sum()).ToReadOnlyReactiveProperty();
 
 			PreviewInvestmentValue = new[] {
 				this.InvestmentValue,this.AddInvestmentValue,
 			}.CombineLatest(x => x.Sum()).ToReadOnlyReactiveProperty();
 			#endregion
-		}
-		public override void Reset() {
+        }
+        public override void Reset() {
 			base.Reset();
 			this.AddInvestmentValue.Value = 0;
 			this.AddAmount.Value = 0;
@@ -105,6 +111,7 @@ namespace StockFolio.ViewModels {
 		public ReactiveProperty<long> AddInvestmentValue { get; }
 		public override ReadOnlyReactiveProperty<long> PreviewAmount { get; }
 		public override ReadOnlyReactiveProperty<long> PreviewInvestmentValue { get; }
+
 	}
 	public class ProductEditor : FinancialEditer {
 		public ProductEditor(CommonNode model) : base(model) {
@@ -163,7 +170,6 @@ namespace StockFolio.ViewModels {
 			#endregion
 
 			#region プレビュー
-
 			PreviewInvestmentValue = new[] {
 				this.InvestmentValue,this.AddInvestmentValue,
 			}.CombineLatest(x => x.Sum()).ToReadOnlyReactiveProperty();
@@ -182,13 +188,21 @@ namespace StockFolio.ViewModels {
 				this.AddTradeQuantity,this.TradeQuantity,
 			}.CombineLatest(x=>x.Sum()).ToReadOnlyReactiveProperty();
 
-			PreviewPerPrice = new[] {
+			PreviewPerPrice = new[] {//? 単価にはなるが、現在値ではない
 				this.PreviewAmount,this.PreviewQuantity,
 			}.CombineLatest(a => a[1] != 0 ? (double)a[0] / a[1] : innerModel.Quantity != 0 ? (double)innerModel.Amount / innerModel.Quantity : 0)
 			.ToReadOnlyReactiveProperty();
 			#endregion
+
+			#region model
+			this.ModelQuantity = innerModel.ObserveProperty(x => x.Quantity).ToReadOnlyReactiveProperty().AddTo(Disposables);
+			this.ModelTradeQuantity = innerModel.ObserveProperty(x => x.TradeQuantity).ToReadOnlyReactiveProperty().AddTo(Disposables);
+			this.ModelPerPrice = new[] {
+				ModelAmount, ModelQuantity,
+			}.CombineLatest(a => a[1] != 0 ? (double)a[0] / a[1] : 0).ToReadOnlyReactiveProperty().AddTo(Disposables);
+			#endregion
 		}
-		public override void Reset() {
+        public override void Reset() {
 			base.Reset();
 			this.TradeQuantity.Value = innerModel.TradeQuantity;
 			this.Quantity.Value = innerModel.Quantity;
@@ -209,6 +223,10 @@ namespace StockFolio.ViewModels {
 		public ReadOnlyReactiveProperty<long> PreviewQuantity { get; }
 		public ReadOnlyReactiveProperty<long> PreviewTradeQuantity { get; }
 		public ReadOnlyReactiveProperty<double> PreviewPerPrice { get; }
+
+		public ReadOnlyReactiveProperty<long> ModelQuantity { get; }
+		public ReadOnlyReactiveProperty<long> ModelTradeQuantity { get; }
+		public ReadOnlyReactiveProperty<double> ModelPerPrice { get; }
 
 	}
 }

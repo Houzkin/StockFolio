@@ -31,6 +31,13 @@ namespace PortFolion.Core {
 			if (this.ChildNodes.Any(a => a.Name == child.Name)) return false;
 			return base.CanAddChild(child);
 		}
+		public bool CanAdd(CommonNode child) {
+			return this.CanAddChild(child);
+		}
+		public bool CanAdd(string name) {
+			if(this.ChildNodes.Any(a=>a.Name == name)) return false;
+			return true;
+		}
 		string _name = "";
 		public string Name {
 			get { return _name; }
@@ -180,10 +187,12 @@ namespace PortFolion.Core {
 	//}
 	/// <summary>アカウント</summary>
 	public class AccountNode : FinancialBasket {
-		public AccountNode(AccountClass type/*, NuetralCreateMode mode = NuetralCreateMode.Auto*/) {
+		public AccountNode() {
+			this.GetOrCreateNuetral();
+		}
+		public AccountNode(AccountClass type) {
 			Account = type;
-			//this.NuetralCreateMode = mode;
-			/*if (mode == NuetralCreateMode.WithInitialize)*/ this.GetOrCreateNuetral();
+			this.GetOrCreateNuetral();
 		}
 		public AccountNode(AccountClass type, int leva) : this(type) {
 			levarage = leva;
@@ -192,8 +201,15 @@ namespace PortFolion.Core {
 			Account = cushion.Account;
 			levarage = cushion.Levarage;
 		}
-		//public NuetralCreateMode NuetralCreateMode { get; private set; }
-		public AccountClass Account { get; private set; }
+		AccountClass accountClass;
+		public AccountClass Account {
+			get { return accountClass; }
+			set {
+				if (accountClass == value) return;
+				accountClass = value;
+				RaisePropertyChanged();
+			}
+		}
 		int levarage = 1;
 		/// <summary>口座に掛かるレバレッジ</summary>
 		public int Levarage {
@@ -238,7 +254,7 @@ namespace PortFolion.Core {
 			return base.Clone(nd);
 		}
 		public override CommonNode Clone() {
-			return this.Clone(new AccountNode(Account));
+			return this.Clone(new AccountNode());
 		}
 		internal override CushionNode ToSerialCushion() {
 			var obj = base.ToSerialCushion();

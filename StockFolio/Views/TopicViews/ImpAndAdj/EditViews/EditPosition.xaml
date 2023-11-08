@@ -5,9 +5,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:StockFolio.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="850">
+             d:DesignHeight="120" d:DesignWidth="1400" d:Background="White">
     <UserControl.Resources>
+        <Thickness x:Key="CellMargin">5 1 5 1</Thickness>
+        <Thickness x:Key="TxtMargin">5 1</Thickness>
+        
         <local:LongToStringConverter x:Key="LongToString"/>
+        <local:DoubleToStringConverter x:Key="DoubleToString"/>
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -15,14 +19,11 @@
             <ColumnDefinition Width="auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <DataGrid Grid.Column="0" ItemsSource="{Binding EditerGridItems}" AutoGenerateColumns="False" HeadersVisibility="All">
+        <!--<DataGrid Grid.Column="0" ItemsSource="{Binding EditerGridItems}" AutoGenerateColumns="False" HeadersVisibility="All">
             <DataGrid.RowHeaderStyle>
                 <Style TargetType="DataGridRowHeader" BasedOn="{StaticResource MahApps.Styles.DataGridRowHeader}">
                     <Setter Property="Content" Value="{Binding  Status}" />
-                    <!--<Setter Property="Background"
-                     Value="{StaticResource MahApps.Brushes.Gray10}" />
-                    <Setter Property="Foreground" Value="white" />
-                    <Setter Property="Width" Value="80" />-->
+                    
                 </Style>
             </DataGrid.RowHeaderStyle>
             <DataGrid.Columns>
@@ -91,7 +92,7 @@
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Header="投資額" CanUserSort="False">
+                <DataGridTemplateColumn Header="当日投資額合計" CanUserSort="False">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding InvestmentValue.Value}"/>
@@ -120,21 +121,90 @@
                 <DataGridTextColumn Header="残高" CanUserSort="False" Binding="{Binding Amount.Value,Converter={StaticResource LongToString}}" IsReadOnly="{Binding IsReadOnly}" >
                 </DataGridTextColumn>
                 
-                <!--<DataGridTemplateColumn Header="残高" CanUserSort="False">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Amount.Value}"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                    <DataGridTemplateColumn.CellEditingTemplate>
-                        <DataTemplate>
-                            <TextBox Text="{Binding Amount.Value,Converter={StaticResource LongToString}}" IsEnabled="{Binding IsEnabled}" IsReadOnly="{Binding IsReadOnly}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellEditingTemplate>
-                </DataGridTemplateColumn>-->
             </DataGrid.Columns>
-        </DataGrid>
+        </DataGrid>-->
+
+        <Grid Grid.Column="0" Margin="5" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!--Row Background-->
+            <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="12" Background="#19838383" />
+            <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="12"  Background="#19838383"/>
+            <!--Column line-->
+            <!--Row & Column Header line-->
+            <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="4"  BorderBrush="{StaticResource MahApps.Brushes.Separator}" BorderThickness="0,0,2,0"/>
+            <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="12"  BorderBrush="{StaticResource MahApps.Brushes.Separator}" BorderThickness="0,0,0,2"/>
+            <!--Row header-->
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="変更前" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="変更内容" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBlock Grid.Row="3" Grid.Column="0" Text="変更後" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <!--Column header-->
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="項目" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+            <TextBlock Grid.Row="0" Grid.Column="2" Text="現在単価" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBlock Grid.Row="0" Grid.Column="3" Text="分割係数" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBlock Grid.Row="0" Grid.Column="4" Text="追加取引数量" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBlock Grid.Row="0" Grid.Column="5" Text="当日取引数量" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBlock Grid.Row="0" Grid.Column="6" Text="保有数量" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBlock Grid.Row="0" Grid.Column="7" Text="追加取引金額" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBlock Grid.Row="0" Grid.Column="8" Text="当日取引額合計" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBlock Grid.Row="0" Grid.Column="9" Text="評価額" Margin="{StaticResource CellMargin}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <!--項目-->
+            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Editer.ModelName.Value}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Editer.Name.Value}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="{StaticResource TxtMargin}" MinWidth="70" HorizontalContentAlignment="Right"/>
+            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Editer.Name.Value}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <!--現在単価-->
+            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Editer.ModelPerPrice.Value}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBox Grid.Row="2" Grid.Column="2" Text="{Binding Editer.PerPrice.Value}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="{StaticResource TxtMargin}" MinWidth="70" HorizontalContentAlignment="Right"/>
+            <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding Editer.PreviewPerPrice.Value}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <!--分割係数-->
+            <TextBlock Grid.Row="1" Grid.Column="3" Text="" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBox Grid.Row="2" Grid.Column="3" Text="{Binding Editer.QuantitySplitRatio.Value}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="{StaticResource TxtMargin}" MinWidth="70" HorizontalContentAlignment="Right"/>
+            <TextBlock Grid.Row="3" Grid.Column="3" Text="" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <!--追加取引数量-->
+            <TextBlock Grid.Row="1" Grid.Column="4" Text="" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBox Grid.Row="2" Grid.Column="4" Text="{Binding Editer.AddTradeQuantity.Value}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="{StaticResource TxtMargin}" MinWidth="70" HorizontalContentAlignment="Right"/>
+            <TextBlock Grid.Row="3" Grid.Column="4" Text="" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <!--当日取引数量-->
+            <TextBlock Grid.Row="1" Grid.Column="5" Text="{Binding Editer.ModelTradeQuantity.Value}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBox Grid.Row="2" Grid.Column="5" Text="{Binding Editer.TradeQuantity.Value}" IsReadOnly="{Binding Alteration.Value,Converter={StaticResource BooleanToVisibilityConverter}}" IsEnabled="{Binding Alteration.Value}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="{StaticResource TxtMargin}" MinWidth="70" HorizontalContentAlignment="Right"/>
+            <TextBlock Grid.Row="3" Grid.Column="5" Text="{Binding Editer.PreviewTradeQuantity.Value}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <!--保有数量-->
+            <TextBlock Grid.Row="1" Grid.Column="6" Text="{Binding Editer.ModelQuantity.Value}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBox Grid.Row="2" Grid.Column="6" Text="{Binding Editer.Quantity.Value}" IsReadOnly="{Binding Alteration.Value,Converter={StaticResource BooleanToVisibilityConverter}}" IsEnabled="{Binding Alteration.Value}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="{StaticResource TxtMargin}" MinWidth="70" HorizontalContentAlignment="Right"/>
+            <TextBlock Grid.Row="3" Grid.Column="6" Text="{Binding Editer.PreviewQuantity.Value}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <!--追加取引金額-->
+            <TextBlock Grid.Row="1" Grid.Column="7" Text="" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBox Grid.Row="2" Grid.Column="7" Text="{Binding Editer.AddInvestmentValue.Value}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="{StaticResource TxtMargin}" MinWidth="70" HorizontalContentAlignment="Right"/>
+            <TextBlock Grid.Row="3" Grid.Column="7" Text="" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <!--当日取引額合計-->
+            <TextBlock Grid.Row="1" Grid.Column="8" Text="{Binding Editer.ModelInvestmentValue.Value}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBox Grid.Row="2" Grid.Column="8" Text="{Binding Editer.InvestmentValue.Value}" IsReadOnly="{Binding Alteration.Value,Converter={StaticResource BooleanToVisibilityConverter}}" IsEnabled="{Binding Alteration.Value}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="{StaticResource TxtMargin}" MinWidth="70" HorizontalContentAlignment="Right"/>
+            <TextBlock Grid.Row="3" Grid.Column="8" Text="{Binding Editer.PreviewInvestmentValue.Value}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <!--評価額-->
+            <TextBlock Grid.Row="1" Grid.Column="9" Text="{Binding Editer.ModelAmount.Value}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <TextBox Grid.Row="2" Grid.Column="9" Text="{Binding Editer.Amount.Value}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="{StaticResource TxtMargin}" MinWidth="70" HorizontalContentAlignment="Right"/>
+            <TextBlock Grid.Row="3" Grid.Column="9" Text="{Binding Editer.PreviewAmount.Value}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+        </Grid>
+        
         <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Center" Width="5"/>
-        <local:EditCashPosition Grid.Column="2"/>
+
+        <local:EditCashPosition Grid.Column="2" DataContext="{Binding SubContainer}"/>
     </Grid>
 </UserControl>

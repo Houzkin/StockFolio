@@ -181,7 +181,7 @@ namespace PortFolion.Core {
 		}
 	}
 	public class ForexValue : FinancialProduct {
-		internal ForexValue() { }
+		public ForexValue() { }
 		internal ForexValue(CushionNode cushion) : base(cushion) {
 			_pair = cushion.Code;
 		}

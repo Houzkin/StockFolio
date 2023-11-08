@@ -11,8 +11,46 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:rp="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.WPF"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <DockPanel LastChildFill="True" >
+             d:DesignHeight="450" d:DesignWidth="1300">
+    <UserControl.Resources>
+        <Thickness x:Key="ButtonMargin">5,5</Thickness>
+        
+        <DataTemplate x:Key="EditCash">
+            <local:EditCashPosition/>
+        </DataTemplate>
+        <DataTemplate x:Key="EditPosition">
+            <local:EditPosition/>
+        </DataTemplate>
+        <DataTemplate x:Key="EditAccount">
+            <local:EditBasket/>
+        </DataTemplate>
+        <DataTemplate x:Key="EditBroker">
+            <local:EditBasket/>
+        </DataTemplate>
+        <local:EditViewTemplateSelector x:Key="EditViewSelector"
+                                        BrokerEditView="{StaticResource EditBroker}"
+                                        AccountEditView="{StaticResource EditAccount}"
+                                        PositionEditView="{StaticResource EditPosition}"
+                                        CashPositionEditView="{StaticResource EditCash}"/>
+
+        <DataTemplate x:Key="AddStockOrProduct">
+            <local:AddStockOrProduct/>
+        </DataTemplate>
+        <DataTemplate x:Key="AddAccount">
+            <local:AddAccount/>
+        </DataTemplate>
+        <DataTemplate x:Key="AddBroker">
+            <local:AddBroker/>
+        </DataTemplate>
+        <local:AddEditViewTemplateSelector x:Key="AddViewSelector"
+                                           GeneralOrCreditAccountTemplate="{StaticResource AddStockOrProduct}"
+                                           ForexAccountTemplate="{StaticResource AddStockOrProduct}"
+                                           BrokerTemplate="{StaticResource AddAccount}"
+                                           TotalNodeTemplate="{StaticResource AddBroker}"/>
+
+
+    </UserControl.Resources>
+    <DockPanel LastChildFill="True">
         <Expander x:Name="DateExpander" DockPanel.Dock="Left" Grid.Column="0" Grid.Row="0" IsExpanded="True" ExpandDirection="Right"
                   mah:ControlsHelper.ContentCharacterCasing="Normal">
             <Expander.Header>
@@ -43,15 +81,17 @@
             </TreeView>
         </Expander>
         <GroupBox DockPanel.Dock="Bottom" Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="1" Header="Edit" Margin="1" mah:ControlsHelper.ContentCharacterCasing="Normal">
-            <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
-                <local:EditPosition DataContext="{Binding EditableTreeRoot.CurrentNode.Value}"/>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <StackPanel.Resources>
-                        <Thickness x:Key="ButtonMargin">5,5</Thickness>
-                    </StackPanel.Resources>
-                    <Button Content="Clear" Margin="{StaticResource ButtonMargin}"/>
-                    <Button Content="Apply" Margin="{StaticResource ButtonMargin}"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" DataContext="{Binding EditableTreeRoot.CurrentNode.Value}">
+                <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
+                    <CheckBox Content="全ての編集を許可" IsChecked="{Binding Alteration.Value}" Margin="{StaticResource ButtonMargin}"/>
+                
+                    <ContentControl Content="{Binding}" ContentTemplateSelector="{StaticResource EditViewSelector}"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Clear" Command="{Binding CancelCommand}" Margin="{StaticResource ButtonMargin}"/>
+                        <Button Content="Apply" Command="{Binding ApplyCommand}" Margin="{StaticResource ButtonMargin}"/>
+                    </StackPanel>
                 </StackPanel>
+                <ContentControl Content="{Binding}" ContentTemplateSelector="{StaticResource AddViewSelector}"/>
             </StackPanel>
         </GroupBox>
         <Grid>
@@ -201,25 +241,25 @@
                         </Style>
                         <!--<selector:NodeTemplateSelector x:Key="NodeTemplateSelector"/>-->
                         <local:TargetOnlyEditTemplateSelector x:Key="toeSelector"/>
-                        <DataTemplate x:Key="Basket" DataType="{x:Type vm:EditableBasket}">
+                        <DataTemplate x:Key="Basket" DataType="{x:Type vm:BasketContainer}">
                             <StackPanel Orientation="Horizontal">
                                 <tree:TreeListViewExpander x:Name="TreeExpander"  Margin="3,0"/>
                                 <TextBlock Text="{Binding Name.Value}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </DataTemplate>
-                        <DataTemplate x:Key="Position" DataType="{x:Type vm:EditablePosition}">
+                        <DataTemplate x:Key="Position" DataType="{x:Type vm:PositionContainer}">
                             <StackPanel Orientation="Horizontal">
                                 <tree:TreeListViewExpander x:Name="TreeExpander"  Margin="3,0"/>
                                 <TextBlock Text="{Binding Name.Value}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </DataTemplate>
-                        <DataTemplate x:Key="Cash" DataType="{x:Type vm:EditableCashPosition}">
+                        <DataTemplate x:Key="Cash" DataType="{x:Type vm:CashPositionContainer}">
                             <StackPanel Orientation="Horizontal">
                                 <tree:TreeListViewExpander x:Name="TreeExpander"  Margin="3,0"/>
                                 <TextBlock Text="{Binding Name.Value}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </DataTemplate>
-                        <DataTemplate x:Key="Other" DataType="{x:Type vm:TreeViewNode}">
+                        <DataTemplate x:Key="Other" DataType="{x:Type vm:TreeViewContainer}">
                             <StackPanel Orientation="Horizontal">
                                 <tree:TreeListViewExpander x:Name="TreeExpander"  Margin="3,0"/>
                                 <TextBlock Text="{Binding Name.Value}" VerticalAlignment="Center"/>

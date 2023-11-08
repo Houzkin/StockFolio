@@ -1,4 +1,5 @@
 ﻿using Houzkin;
+using PortFolion.Core;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -61,12 +62,26 @@ namespace StockFolio.ViewModels {
 		Action<T> applyAction;
 		Action<T> undoAction;
 		Func<T, T>? argConv;
-		//T? beforeValue;
 
+		/// <summary>インスタンスを初期化する</summary>
+		/// <param name="name">変更する対象</param>
+		/// <param name="orderValue">変更内容</param>
+		/// <param name="baseValue">変更前の値</param>
+		/// <param name="apply">更新関数</param>
+		/// <param name="conv">Undo直前にapply関数またはundo関数に適用される引数をbaseValueから変換する</param>
+		/// <param name="undo">Undo関数。指定しない場合はapply関数が呼び出される</param>
 		public EditPresenter(string name, Func<T> orderValue, Func<T> baseValue, Action<T> apply, Func<T, T>? conv = null, Action<T>? undo = null)
 			: this(0,new[] { name, }, orderValue, baseValue, apply, conv, undo) {
 		}
-		public EditPresenter(int priority, string name, Func<T> orderValue, Func<T> baseValue, Action<T> apply, Func<T, T>? conv = null, Action<T>? undo = null)
+        /// <summary>インスタンスを初期化する</summary>
+        /// <param name="priority">優先度。小さい値ほど優先度は高い。</param>
+        /// <param name="name">変更する対象</param>
+        /// <param name="orderValue">変更内容</param>
+        /// <param name="baseValue">変更前の値</param>
+        /// <param name="apply">更新関数</param>
+        /// <param name="conv">Undo直前にapply関数またはundo関数に適用される引数をbaseValueから変換する</param>
+        /// <param name="undo">Undo関数。指定しない場合はapply関数が呼び出される</param>
+        public EditPresenter(int priority, string name, Func<T> orderValue, Func<T> baseValue, Action<T> apply, Func<T, T>? conv = null, Action<T>? undo = null)
 			:this(priority, new[] { name, }, orderValue, baseValue, apply, conv, undo) {
 		}
 		protected EditPresenter(int priority, string[] names, Func<T> orderValue, Func<T> baseValue, Action<T> apply, Func<T, T>? conv = null, Action<T>? undo = null)
@@ -123,4 +138,47 @@ namespace StockFolio.ViewModels {
 			return ud;
 		}
 	}
+
+    public class AddNodePresenter : EditPresenterBase {
+		Func<bool> _hasOrder;
+		Action _apply;
+		Action _undo;
+		CommonNode _node;
+		/// <summary>優先度-1でインスタンスを初期化</summary>
+		/// <param name="chargeNames">変更に反応する名前を指定</param>
+		/// <param name="node">Undoのステータス取得に使用するnode</param>
+		/// <param name="hasOrder">実行可能なオーダーかどうかを示す</param>
+		/// <param name="apply">apply関数</param>
+		/// <param name="undo">undo関数</param>
+		public AddNodePresenter(string[] chargeNames,CommonNode node, Func<bool> hasOrder, Action apply, Action undo)
+			: base(-1,chargeNames ){
+			_node = node;
+			_hasOrder = hasOrder;
+			_apply = apply;
+			_undo = undo;
+		}
+        /// <summary>優先度-1でインスタンスを初期化。</summary>
+        /// <param name="chargeName">変更に反応する名前を指定</param>
+		/// <param name="node">Undoのステータス取得に使用するnode</param>
+		/// <param name="hasOrder">実行可能なオーダーかどうかを示す</param>
+		/// <param name="apply">apply関数</param>
+		/// <param name="undo">undo関数</param>
+        public AddNodePresenter(string chargeName,CommonNode node,Func<bool> hasOrder,Action apply, Action undo)
+			:this(new string[] { chargeName }, node, hasOrder, apply, undo) { }
+
+		public override bool HasOrder => _hasOrder();
+
+        public override IUndoOrder Apply() {
+			_apply();
+			RaisePropertyChanged(nameof(HasOrder));
+			var ud = new UndoOrder(_undo);
+			ud.ChangedBeforeAfter.Add("Name", new List<object?>() {"-",_node.Name });
+			var ac = _node as AccountNode;
+			if (ac != null) {
+				ud.ChangedBeforeAfter.Add("AccountType", new List<object?>() { "-", ac.Account.ToString() });
+				ud.ChangedBeforeAfter.Add("Levarage", new List<object?>() {"-",ac.Levarage });
+			}
+			return ud;
+        }
+    }
 }
