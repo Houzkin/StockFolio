@@ -26,7 +26,10 @@ namespace StockFolio.ViewModels {
 			var n = model switch {
 				FinancialProduct ep => new PositionContainer(ep),
 				CashValue ep=> new CashPositionContainer(ep),
-				CommonNode ep=> new BasketContainer(ep),
+				AccountNode ep=> new AccountContainer(ep),
+				TotalRiskFundNode ep=> new BasketContainer(ep),
+				BrokerNode ep => new BrokerContainer(ep),
+				_ => new BasketContainer(model),
 			};
 			return n;
 		}
@@ -86,9 +89,9 @@ namespace StockFolio.ViewModels {
 	}
     
     public class TreeViewGridRoot : TreeViewContainer {
-		private ObservableDictionary<CommonNode, TreeViewContainer> _buffDic { get; }
-		public TreeViewGridRoot(ImportAndAdjustmentViewModel viewmodel):base() {
-			this._buffDic = viewmodel.NodeCash;
+		private static ObservableDictionary<CommonNode, TreeViewContainer> _buffDic { get; } = new();
+		public TreeViewGridRoot():base() {
+			//this._buffDic = nodeCash;
 			CurrentDate = _currentDate.ToReadOnlyReactiveProperty();
 			CurrentNode = _currentNode.ToReadOnlyReactiveProperty();
 			//this.SelectedCommand = new DelegateCommand(() => this.OnSelected(this.Model));
@@ -128,8 +131,9 @@ namespace StockFolio.ViewModels {
 		}
 		public void Refresh() {
 			//要確認
-			this._buffDic.Select(a => a.Value).ForEach(a => a.Dispose());
-			this._buffDic.Clear();
+			var path = CurrentNode.Value?.Model.Path;
+			_buffDic.Select(a => a.Value).ForEach(a => a.Dispose());
+			_buffDic.Clear();
 			if (this.CurrentDate.Value != null) DisplayTo(this.CurrentDate.Value.Value);
 			else this.DismantleDescendants();
 		}

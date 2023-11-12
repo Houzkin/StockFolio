@@ -29,11 +29,12 @@ namespace StockFolio.ViewModels
 		public int Level
 		{
 			get {
-				return Math.Max(0, Math.Min(_level, location.CurrentNode.Height())); 
+				return Math.Max(0, Math.Min(_level, location.CurrentNode?.Height() ?? 1)); 
 			}
 			set {
 				var pre = this.Level;
-				if (0 <= value && value <= location.CurrentNode.Height()) _level = value;
+				var tes = location.CurrentNode?.Height() ?? 1;
+				if (0 <= value && value <= tes) _level = value;
 				if(pre!=this.Level || value== -1)
 					this.OnPropertyChanged(nameof(Level));
 			}

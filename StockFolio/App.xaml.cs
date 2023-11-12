@@ -14,6 +14,8 @@ using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using SkiaSharp;
 using StockFolio.ExtractData;
+using StockFolio.ViewModels;
+using Prism.Regions;
 
 namespace StockFolio
 {
@@ -28,8 +30,21 @@ namespace StockFolio
 		}
 
 		protected override void RegisterTypes(IContainerRegistry containerRegistry) {
-			containerRegistry.RegisterSingleton<AttachDetachSwitcher>();
-		}
+			containerRegistry.RegisterSingleton<AssetTransitionViewModel>();
+			containerRegistry.RegisterSingleton<PortfolioHoldingsViewModel>();
+			containerRegistry.RegisterSingleton<ImportAndAdjustmentViewModel>();
+			containerRegistry.RegisterSingleton<TradeHistoryViewModel>();
+			containerRegistry.RegisterSingleton<TradeAnalysisViewModel>();
+			containerRegistry.RegisterSingleton<MainViewModel>();
+			containerRegistry.RegisterSingleton<AdjustmentViewModel>();
+			containerRegistry.RegisterSingleton<ImportViewModel>();
+
+			//var regionManager = Container.Resolve<IRegionManager>();
+			//regionManager.RegisterViewWithRegion("TopicsRegion", typeof(AssetTransition));
+   //         regionManager.RegisterViewWithRegion("TopicsRegion", typeof(ImportAndAdjustment));
+            //IRegion region= regionManager.Regions["TopicsRegion"];
+            //region.Add(Container.Resolve<ImportAndAdjustment>());
+        }
 		private  void PrismApplication_Startup(object sender,StartupEventArgs e) {
 			if (this.mutex.WaitOne(0, false)) return;
 			MessageBox.Show("二重起動できません。", "情報", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -46,7 +61,7 @@ namespace StockFolio
 		}
 		protected override void OnStartup(StartupEventArgs e) {
 			base.OnStartup(e);
-			LiveCharts.Configure(config => {
+            LiveCharts.Configure(config => {
 				config.AddDarkTheme();
 				config.HasGlobalSKTypeface(SKFontManager.Default.MatchCharacter('あ'));
 				//config.HasMap<string>((s, point) => { point.Coordinate = new LiveChartsCore.Kernel.Coordinate(point.Index, s.Length); }) ;

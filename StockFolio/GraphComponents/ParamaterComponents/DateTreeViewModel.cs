@@ -64,7 +64,7 @@ namespace StockFolio.ViewModels
 	{
 		public DateTreeRootViewModel() : base(_ => "")
 		{
-			Refresh();
+			//Refresh();
 		}
 		void assembleTree(DateTime date)
 		{

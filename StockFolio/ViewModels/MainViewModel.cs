@@ -1,11 +1,17 @@
-﻿using Prism.Commands;
+﻿using Houzkin.Architecture;
+using Prism.Commands;
+using Prism.Ioc;
+using Prism.Modularity;
 using Prism.Mvvm;
 using Prism.Regions;
 using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
+using StockFolio.DiContainer;
 using StockFolio.ExtractData;
 using StockFolio.Views;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices.ObjectiveC;
@@ -18,32 +24,20 @@ namespace StockFolio.ViewModels
 {
 	internal class MainViewModel : BindableBase
 	{
-		static MainViewModel? _self;
-		static AssetTransitionViewModel? _assetTransition;
-		static PortfolioHoldingsViewModel? _portfolioHoldings;
-		static TradeHistoryViewModel? _tradeHistory;
-		static TradeAnalysisViewModel? _tradeRsults;
-		static ImportAndAdjustmentViewModel? _adjustment;
-		public static MainViewModel GetMainViewModel()
-		{
-			return _self ?? new();
-		}
+		static IContainerExtension extension;
+		
 
-		public AttachDetachSwitcher compositeAttachDettach { get; } = new AttachDetachSwitcher();
-		public AssetTransitionViewModel AssetTransitionVM => _assetTransition ??= new AssetTransitionViewModel(compositeAttachDettach);
-		public PortfolioHoldingsViewModel PortfolioHoldingsVM => _portfolioHoldings ??= new PortfolioHoldingsViewModel(compositeAttachDettach);
-		public TradeHistoryViewModel TradeHistoryVM => _tradeHistory ??= new TradeHistoryViewModel();
-		public TradeAnalysisViewModel TradeAnalysisVM => _tradeRsults ??= new TradeAnalysisViewModel();
-		public ImportAndAdjustmentViewModel ImportAndAdjustmentVM => _adjustment ??= new ImportAndAdjustmentViewModel();
-		//public DelegateCommand<SelectionChangedEventArgs> SelectedTabCommand { get; }
+        public UpdateSwitcher compositeAttachDettach { get; } = UpdateSwitcher.Switcher;
 		public ReactiveCommand<AttachOrderArgs> TabSelectionCommand { get; } = new ReactiveCommand<AttachOrderArgs>();
 		public DelegateCommand ReloadData { get; }
 		public DelegateCommand ShowImputDataLayar { get; }
 
 		public DelegateCommand ClosedCommand { get; }
 
-		public MainViewModel() {
-			_self = this;
+		public MainViewModel(IContainerExtension containerExtension) {
+			extension = containerExtension;
+			
+			//UpdateSwitcher.Switcher.AttachOnly(extension.Resolve<AssetTransitionViewModel>());
 			this.ReloadData = new DelegateCommand(
 				() => { /* データ再読み込みコマンドの処理 */
 					compositeAttachDettach.Refresh();
@@ -51,18 +45,41 @@ namespace StockFolio.ViewModels
 			this.ShowImputDataLayar = new DelegateCommand(
 				() => { /* インプットレイヤーの表示処理 */ });
 
-			//this.SelectedTabCommand = new DelegateCommand<SelectionChangedEventArgs>(e => {
-			//	var cur = (e.AddedItems[0] as TabItem)?.DataContext;
-			//	var rmv = (e.RemovedItems[0] as TabItem)?.DataContext;
-			//	compositeAttachDettach.OffAndOn(rmv, cur);
+			//this.TabSelectionCommand.Subscribe(a => {
+			//	if (a.OriginSourceDataContext != this) return;
+			//	compositeAttachDettach.OnAndOff(a.ActiveDataContext, a.DeactiveDataContext);
 			//});
-			this.TabSelectionCommand.Subscribe(a => {
-				if (a.OriginSourceDataContext != this) return;
-				compositeAttachDettach.OnAndOff(a.ActiveDataContext, a.DeactiveDataContext);
-			});
 			this.ClosedCommand = new DelegateCommand(() => this.compositeAttachDettach.Dispose());
 		}
 		
 		
+	}
+	public abstract class TopicViewModel : ViewModelBase {
+		bool _isActive = false;
+		public bool IsActive {
+			get { return _isActive;}
+			set { 
+				if(_isActive == value) return;
+				_isActive = value;
+				OnPropertyChanged();
+			}
+		}
+		protected TopicViewModel() {
+			this.ObserveProperty(x => x.IsActive)
+				.Subscribe(a => {
+					if (a) 
+						this.OnActived();
+					else 
+						this.OnDeactived();
+				});
+		}
+		protected virtual void OnActived() {
+			UpdateSwitcher.Switcher.AttachOnly(this);
+
+			//Debug.Print(this.ToString() + " is Attached");
+		}
+		protected virtual void OnDeactived() {
+            //Debug.Print(this.ToString() + " is Detached");
+        }
 	}
 }

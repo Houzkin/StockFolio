@@ -36,12 +36,13 @@ namespace StockFolio.ViewModels
         public virtual SolidColorPaint TooltipBackgroundPaint { get; } = new SolidColorPaint { Color = SKColors.Black.WithAlpha(150), };
 
         CompositeDisposable dettachesList = new ();
-        List<IDisposable> ConditionObserver = new ();
+        CompositeDisposable ConditionObserver = new ();
         public BrakeDownViewModel(AssetTransitionViewModel atvm) {
             _atvm = atvm;
             var ads = new AttachDetachSet(atvm, AttachFunc, Update, DetachFunc, a => { if (a) DetachFunc(); });
-            _atvm.compositeAttacheDetach
-                .AttachAndAdd(ads)
+            //_atvm.compositeAttacheDetach
+            UpdateSwitcher.Switcher
+                .RefreshAndAdd(ads)
                 .AddTo(dettachesList);
             
             //this.AttachCommand.Subscribe(_ => ads.Attach());
@@ -62,7 +63,7 @@ namespace StockFolio.ViewModels
                 .Where(e => e.ParamNames.Intersect(trrigers).Any()).Subscribe(_ => this.Update()).AddTo(ConditionObserver);// .AddTo(dettachesList);
         }
         void DetachFunc() {
-            ConditionObserver.ForEach(a => a.Dispose());
+            //ConditionObserver.ForEach(a => a.Dispose());
             ConditionObserver.Clear();
         }
 
@@ -74,7 +75,10 @@ namespace StockFolio.ViewModels
         }
 		protected override void Dispose(bool disposing) {
 			base.Dispose(disposing);
-            this.dettachesList.Dispose();
+            if (disposing) {
+                this.dettachesList.Dispose();
+                this.ConditionObserver.Dispose();
+            }
 		}
 		protected virtual IEnumerable<Color> GetColors(int len) {
             return ColorSrc.Pies(len);

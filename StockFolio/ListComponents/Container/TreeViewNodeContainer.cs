@@ -26,10 +26,7 @@ namespace StockFolio.ViewModels {
         ElementEditer? _stockPosi;
         ICommand? _addStockCommand;
         public ElementEditer StockPosition {
-            get {
-                if (_stockPosi == null) StockPosition = new StockPositionCreater(Model); 
-                return _stockPosi!;
-            }
+            get { return _stockPosi ??= new StockPositionCreater(Model); }
             set {
                 if (_stockPosi != value) {
                     _stockPosi?.Dispose();
@@ -50,10 +47,7 @@ namespace StockFolio.ViewModels {
         ElementEditer? _productPosi;
         ICommand? _addProductCommand;
         public ElementEditer ProductPosition {
-            get {
-                if (_productPosi == null) { ProductPosition = new ProductPositionCreater(Model); }
-                return _productPosi!;
-            }
+            get { return _productPosi ??= new ProductPositionCreater(Model); }
             set {
                 if (_productPosi != value) {
                     _productPosi?.Dispose();
@@ -73,10 +67,7 @@ namespace StockFolio.ViewModels {
         ElementEditer? _fxPosi;
         ICommand? _addFxCommand;
         public ElementEditer FxPosition {
-            get {
-                if (_fxPosi == null) { FxPosition = new FxPositionCreater(Model); }
-                return _fxPosi!;
-            }
+            get { return _fxPosi ??= new FxPositionCreater(Model); }
             set {
                 if (_fxPosi != value) {
                     _fxPosi?.Dispose();
@@ -100,10 +91,7 @@ namespace StockFolio.ViewModels {
         ElementEditer? _account;
         ICommand? _addAccountCommand;
         public ElementEditer Account {
-            get {
-                if (_account == null) this.Account = new AccountCreater(Model);
-                return this.Account;
-            }
+            get {return _account ??= new AccountCreater(Model); }
             set {
                 if(_account != value) {
                     _account?.Dispose();
@@ -118,6 +106,30 @@ namespace StockFolio.ViewModels {
                 this.Account = new AccountCreater(Model);
             },()=>this.Account.CanApply.Value)
                 .ObservesProperty(()=> Account.CanApply.Value);
+        }
+    }
+    public class TotalContainer: BasketContainer {
+        public TotalContainer(CommonNode model) : base(model) {
+            Disposables.Add(Disposable.Create(() => _broker?.Dispose()));
+        }
+        ElementEditer? _broker;
+        ICommand? _addBrokerCommand;
+        public ElementEditer Broker {
+            get { return _broker ??= new BrokerCreater(Model); }
+            set {
+                if(_broker != value) {
+                    _broker?.Dispose();
+                    _broker = value;
+                    this.RaisePropertyChanged(nameof(Broker));
+                }
+            }
+        }
+        public ICommand AddBroker {
+            get =>_addBrokerCommand ??= new DelegateCommand(() => {
+                this.Broker.Apply();
+                this.Broker = new BrokerCreater(Model);
+            },()=>this.Broker.CanApply.Value)
+                .ObservesProperty(()=> Broker.CanApply.Value);
         }
     }
 }

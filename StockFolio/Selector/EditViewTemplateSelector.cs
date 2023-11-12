@@ -22,9 +22,10 @@ namespace StockFolio.Views {
             var vm = item as TreeViewContainer;
             if (vm == null) return null;
             var ev = vm.Model.GetNodeType() switch {
-                NodeType.Cash => CashPositionEditView,
-                NodeType.Account => AccountEditView,
+                NodeType.Total => BrokerEditView,
                 NodeType.Broker => BrokerEditView,
+                NodeType.Account => AccountEditView,
+                NodeType.Cash => CashPositionEditView,
                 NodeType.Stock => PositionEditView,
                 NodeType.OtherProduct => PositionEditView,
                 NodeType.Forex => PositionEditView,

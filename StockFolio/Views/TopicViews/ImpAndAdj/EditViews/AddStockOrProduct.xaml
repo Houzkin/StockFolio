@@ -1,13 +1,59 @@
-﻿<UserControl x:Class="StockFolio.Views.AddStockOrProduct"
+﻿<UserControl
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:StockFolio.Views"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" x:Class="StockFolio.Views.AddStockOrProduct"
              mc:Ignorable="d" 
-             d:DesignHeight="188.113" d:DesignWidth="525.687">
-    <!--株式口座に適用するコントロール　DataContextは ooooContainerが充てられる-->
+             d:DesignHeight="188.113" d:DesignWidth="525.687" d:Background="AliceBlue">
     <Grid>
-            
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="株式 : " HorizontalAlignment="Right" VerticalAlignment="Center"/>
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1">
+            <TextBox Text="{Binding StockPosition.Code.Value}" mah:TextBoxHelper.Watermark="証券コード"/>
+            <TextBox Text="{Binding StockPosition.Name.Value}" mah:TextBoxHelper.Watermark="社名"/>
+            <Button Content="追加" Command="{Binding AddStockPosition}"/>
+        </StackPanel>
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="投資信託・債権 : " HorizontalAlignment="Right" VerticalAlignment="Center"/>
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1">
+            <TextBox Text="{Binding ProductPosition.Name.Value}" mah:TextBoxHelper.Watermark="社名"/>
+            <Button Content="追加" Command="{Binding AddProductPosition}"/>
+        </StackPanel>
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="為替 : " HorizontalAlignment="Right" VerticalAlignment="Center"/>
+        <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+            <TextBox Text="{Binding FxPosition.Pair.Value}" mah:TextBoxHelper.Watermark="通貨ペア"/>
+            <TextBox Text="{Binding FxPosition.Name.Value}" mah:TextBoxHelper.Watermark="ポジションID"/>
+            <Button Content="追加" Command="{Binding AddFxPosition}"/>
+        </StackPanel>
     </Grid>
+    <!--<StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Left">
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="株式" VerticalAlignment="Center"/>
+            <TextBox Text="{Binding Code}"/>
+            <TextBox Text="{Binding Name}"/>
+            <Button Content="追加" Command="{Binding AddStockPosition}"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="投資信託" VerticalAlignment="Center"/>
+            <TextBox Text="{Binding Code}"/>
+            <TextBox Text="{Binding Name}"/>
+            <Button Content="追加" Command="{Binding AddStockPosition}"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="株式" VerticalAlignment="Center"/>
+            <TextBox Text="{Binding Code}"/>
+            <TextBox Text="{Binding Name}"/>
+            <Button Content="追加" Command="{Binding AddStockPosition}"/>
+        </StackPanel>
+    </StackPanel>-->
 </UserControl>

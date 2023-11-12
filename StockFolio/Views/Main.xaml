@@ -13,7 +13,7 @@
                 xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
                 xmlns:rp="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.WPF"
                 d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
-                prism:ViewModelLocator.AutoWireViewModel="False"
+                prism:ViewModelLocator.AutoWireViewModel="True"
                 TitleCharacterCasing="Normal"
                 Title="StockFolio" Height="650" Width="1000">
     <i:Interaction.Triggers>
@@ -21,9 +21,9 @@
             <prism:InvokeCommandAction Command="{Binding ClosedCommand}"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
-    <mah:MetroWindow.DataContext>
+    <!--<mah:MetroWindow.DataContext>
         <vm:MainViewModel/>
-    </mah:MetroWindow.DataContext>
+    </mah:MetroWindow.DataContext>-->
     <mah:MetroWindow.RightWindowCommands>
         <mah:WindowCommands>
             <Button Command="{Binding ReloadData}" ToolTip="再読み込み">
@@ -64,9 +64,14 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <mah:MetroAnimatedSingleRowTabControl x:Name="MainTabControl" TabStripPlacement="Left" mah:TabControlHelper.Underlined="SelectedTabItem">
+        <mah:MetroAnimatedSingleRowTabControl 
+            x:Name="MainTabControl" 
+            TabStripPlacement="Left" 
+            mah:TabControlHelper.Underlined="SelectedTabItem">
             <mah:MetroAnimatedSingleRowTabControl.Resources>
                 <Style BasedOn="{StaticResource {x:Type TabItem}}" TargetType="{x:Type TabItem}">
+                    <Setter Property="Header" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.DataContext.Title}"/>
+                    <Setter Property="IsSelected" Value="{Binding RelativeSource={RelativeSource Self},Path=Content.DataContext.IsActive}"/>
                     <Setter Property="HeaderTemplate">
                         <Setter.Value>
                             <DataTemplate>
@@ -81,28 +86,28 @@
                 </Style>
             </mah:MetroAnimatedSingleRowTabControl.Resources>
             <i:Interaction.Triggers>
-                <i:EventTrigger EventName="SelectionChanged">
+                <!--<i:EventTrigger EventName="SelectionChanged">-->
                     <!--<prism:InvokeCommandAction Command="{Binding SelectedTabCommand}" />--> <!--CommandParameter="{Binding ElementName=MainTabControl,Path=SelectedValuePath}"-->
-                    <rp:EventToReactiveCommand Command="{Binding TabSelectionCommand}">
+                    <!--<rp:EventToReactiveCommand Command="{Binding TabSelectionCommand}">
                         <local:SelectedTabToVMConverter/>
                     </rp:EventToReactiveCommand>
-                </i:EventTrigger>
+                </i:EventTrigger>-->
             </i:Interaction.Triggers>
-            
-            <TabItem Header=" 資産推移 " IsSelected="True">
-                <v:AssetTransition DataContext="{Binding AssetTransitionVM}"/>
+
+            <TabItem Header=" 資産推移 ">
+                <v:AssetTransition/> 
             </TabItem>
             <TabItem Header=" 保有銘柄 ">
-                <v:PortfolioHoldings DataContext="{Binding PortfolioHoldingsVM}"/>
+                <v:PortfolioHoldings/> 
             </TabItem>
             <TabItem Header=" 取引履歴 " >
-                <v:TradeHistory DataContext="{Binding TradeHistoryVM}"/>
+                <v:TradeHistory/>
             </TabItem>
             <TabItem Header=" 損益リスト ">
-                <v:TradeAnalysis DataContext="{Binding TradeAnalysisVM}"/>
+                <v:TradeAnalysis/> 
             </TabItem>
             <TabItem Header=" 取込・修正 ">
-                <v:ImportAndAdjustment DataContext="{Binding ImportAndAdjustmentVM}"/>
+                <v:ImportAndAdjustment/>
             </TabItem>
         </mah:MetroAnimatedSingleRowTabControl>
     </Grid>
